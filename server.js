@@ -29,8 +29,8 @@ const app = express();
 // ── Attach Socket.IO to the HTTP server ──
 // cors: '*' means any origin can connect (fine for development)
 //const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST'] }
-});
+// cors: { origin: '*', methods: ['GET', 'POST'] }
+//});
 
 // ════════════════════════════════════
 // MIDDLEWARE SETUP
