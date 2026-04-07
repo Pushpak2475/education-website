@@ -27,7 +27,8 @@
 
   <!-- Socket.IO client — loaded from the server automatically -->
   <!-- This gives us the `io()` function to connect to our WebSocket server -->
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Socket.IO client from CDN (server-side socket.io is disabled) -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
 
   <style>
     /* ════════════════════════════════════
@@ -2028,7 +2029,8 @@
     // ════════════════════════════════════════════════════════════
 
     // API base URL — all fetch calls use this prefix
-    const API = 'http://localhost:5000/api';
+    // Use relative path so this works on localhost AND on Render/any host
+    const API = '/api';
 
     // Current logged-in user (null if not logged in)
     let currentUser = null;
@@ -2313,7 +2315,7 @@
     async function previewFile(id) {
       try {
         const res = await apiGet(`/files/${id}`);
-        const path = `http://localhost:5000/${res.file.filePath}`;
+        const path = `${window.location.origin}/${res.file.filePath}`;
         window.open(path, '_blank');
       } catch (e) {
         showToast('Could not open file preview', 'error');
@@ -2773,7 +2775,8 @@
 
     // ── Initialize socket connection to our server ──
     function initSocket() {
-      socket = io('http://localhost:5000');
+      // Connect to same origin — works on localhost AND on Render
+      socket = io();
 
       // When connected, authenticate if user is logged in
       socket.on('connect', () => {
