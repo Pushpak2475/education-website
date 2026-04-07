@@ -14,16 +14,16 @@
 require('dotenv').config();
 
 // ── Core modules ──
-const express    = require('express');        // Web framework
-const http       = require('http');           // Node's built-in HTTP module
+const express = require('express');        // Web framework
+const http = require('http');           // Node's built-in HTTP module
 const { Server } = require('socket.io');      // Real-time websocket library
-const mongoose   = require('mongoose');       // MongoDB ODM (Object Document Mapper)
-const cors       = require('cors');           // Allows frontend to call our API
-const path       = require('path');           // Helps build file paths
+const mongoose = require('mongoose');       // MongoDB ODM (Object Document Mapper)
+const cors = require('cors');           // Allows frontend to call our API
+const path = require('path');           // Helps build file paths
 
 // ── Create Express app and HTTP server ──
 // We wrap Express inside http.Server so Socket.IO can share the same port
-const app    = express();
+const app = express();
 const server = http.createServer(app);
 
 // ── Attach Socket.IO to the HTTP server ──
@@ -69,10 +69,11 @@ mongoose.connect(process.env.MONGO_URI)
 // ROUTE IMPORTS
 // Each feature has its own route file to keep code organized
 // ════════════════════════════════════
-const authRoutes   = require('./routes/auth');      // Login, Register
-const fileRoutes   = require('./routes/files');     // Upload, Download, Browse
-const chatRoutes   = require('./routes/chat');      // Chat history
-const adminRoutes  = require('./routes/admin');     // Admin controls
+const authRoutes = require('./routes/auth');      // Login, Register
+const fileRoutes = require('./routes/files');     // Upload, Download, Browse
+const chatRoutes = require('./routes/chat');      // Chat history
+const adminRoutes = require('./routes/admin');     // Admin controls
+const deptRoutes = require('./routes/departments'); // Dynamic Departments
 
 // ════════════════════════════════════
 // REGISTER ROUTES
@@ -80,10 +81,11 @@ const adminRoutes  = require('./routes/admin');     // Admin controls
 // All file routes will be at /api/files/...
 // etc.
 // ════════════════════════════════════
-app.use('/api/auth',  authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
-app.use('/api/chat',  chatRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/departments', deptRoutes);
 
 // ── Health check route ──
 // Visit http://localhost:5000/api/health to confirm server is running

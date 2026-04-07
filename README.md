@@ -2,7 +2,7 @@
 
 ## Complete Full-Stack Website
 Department-wise, semester-wise notes, PYQs, assignments sharing platform
-with real-time chat and admin panel.
+with real-time chat, dedicated role-based dashboards (Student, Faculty), and a powerful Admin Control Panel (user management, content moderation, chat moderation).
 
 ---
 
@@ -116,6 +116,8 @@ http://localhost:5000
 | GET    | /api/admin/files           | All files            | Admin|
 | PUT    | /api/admin/files/:id       | Approve/reject file  | Admin|
 | DELETE | /api/admin/files/:id       | Delete file          | Admin|
+| DELETE | /api/admin/chat/:id        | Delete single message| Admin|
+| DELETE | /api/admin/chat/clear/:room| Clear chat room      | Admin|
 
 ---
 

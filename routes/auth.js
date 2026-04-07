@@ -8,9 +8,10 @@
 // GET  /api/auth/me       — Get the currently logged-in user's info
 // ════════════════════════════════════════════════════════════
 
-const express   = require('express');
-const router    = express.Router();
-const User      = require('../models/User');
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const Activity = require('../models/Activity');
 const { protect, generateToken } = require('../middleware/auth');
 
 // ────────────────────────────────────────────────────────────
@@ -51,20 +52,27 @@ router.post('/register', async (req, res) => {
     // This token is what they'll use to authenticate future requests
     const token = generateToken(user._id);
 
+    // ── Log this activity for admins ──
+    await Activity.create({
+      action: 'register',
+      description: `New user registered: ${user.name} (${user.role})`,
+      user: user._id
+    });
+
     // ── Send back user info + token ──
     // Note: we never send the password back, even hashed
     res.status(201).json({
       message: 'Registration successful! Welcome to EduVault 🎓',
       token,
       user: {
-        id:         user._id,
-        name:       user.name,
-        email:      user.email,
-        role:       user.role,
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
         department: user.department,
-        year:       user.year,
-        semester:   user.semester,
-        points:     user.points
+        year: user.year,
+        semester: user.semester,
+        points: user.points
       }
     });
 
@@ -116,14 +124,14 @@ router.post('/login', async (req, res) => {
       message: `Welcome back, ${user.name}! 👋`,
       token,
       user: {
-        id:         user._id,
-        name:       user.name,
-        email:      user.email,
-        role:       user.role,
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
         department: user.department,
-        year:       user.year,
-        semester:   user.semester,
-        points:     user.points
+        year: user.year,
+        semester: user.semester,
+        points: user.points
       }
     });
 

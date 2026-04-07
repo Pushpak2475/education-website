@@ -18,13 +18,14 @@
 // ════════════════════════════════════════════════════════════
 
 const express = require('express');
-const router  = express.Router();
-const multer  = require('multer');   // File upload handler
-const path    = require('path');
-const fs      = require('fs');       // Node's file system module
+const router = express.Router();
+const multer = require('multer');   // File upload handler
+const path = require('path');
+const fs = require('fs');       // Node's file system module
 
 const File = require('../models/File');
 const User = require('../models/User');
+const Activity = require('../models/Activity');
 const { protect, authorize } = require('../middleware/auth');
 
 // ════════════════════════════════════
@@ -51,8 +52,8 @@ const storage = multer.diskStorage({
   // filename: what to name the saved file
   // We use timestamp + original name to avoid name conflicts
   filename: (req, file, cb) => {
-    const timestamp  = Date.now();
-    const safeName   = file.originalname.replace(/\s+/g, '_'); // Replace spaces
+    const timestamp = Date.now();
+    const safeName = file.originalname.replace(/\s+/g, '_'); // Replace spaces
     cb(null, `${timestamp}_${safeName}`);
     // Example result: 1704123456789_DBMS_Unit3.pdf
   }
@@ -112,6 +113,8 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
       return res.status(400).json({ message: 'Title, type, department, subject, year and semester are all required' });
     }
 
+    const normalizedPath = req.file.path.replace(/\\/g, '/');
+
     // ── Save file metadata to MongoDB ──
     const newFile = await File.create({
       title,
@@ -125,12 +128,13 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
 
       // req.file is populated by multer
       fileName: req.file.originalname,
-      filePath: `uploads/${req.file.filename}`,  // Relative path for serving
+      filePath: normalizedPath,  // Relative path for serving
       fileSize: req.file.size,
       fileType: req.file.mimetype,
 
       // Link file to the logged-in user
-      uploadedBy: req.user._id
+      uploadedBy: req.user._id,
+      isApproved: req.user.role === 'admin' || req.user.role === 'faculty' // Auto-approve if faculty/admin
     });
 
     // ── Award points to uploader for contributing ──
@@ -141,6 +145,13 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
     // ── Populate uploader info before sending response ──
     await newFile.populate('uploadedBy', 'name role department');
 
+    // ── Log activity for admin ──
+    await Activity.create({
+      action: 'upload',
+      description: `Uploaded file: ${title}`,
+      user: req.user._id
+    });
+
     res.status(201).json({
       message: '🎉 File uploaded successfully!',
       file: newFile
@@ -148,8 +159,14 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
 
   } catch (err) {
     console.error('Upload error:', err);
-    // If something failed mid-way, delete the saved file to avoid orphaned files
-    if (req.file) fs.unlinkSync(req.file.path);
+    // If something failed mid-way, safely delete the saved file if it exists
+    if (req.file) {
+      try {
+        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      } catch (unlinkErr) {
+        console.error('Cleanup error:', unlinkErr);
+      }
+    }
     res.status(500).json({ message: 'Upload failed: ' + err.message });
   }
 });
@@ -168,23 +185,23 @@ router.get('/', async (req, res) => {
     // Only add fields to the filter if they were actually provided in the query
     const filter = { isApproved: true }; // Only show approved files
 
-    if (type)       filter.type       = type;
+    if (type) filter.type = type;
     if (department) filter.department = department;
-    if (year)       filter.year       = year;
-    if (semester)   filter.semester   = semester;
-    if (subject)    filter.subject    = new RegExp(subject, 'i'); // Case-insensitive partial match
+    if (year) filter.year = year;
+    if (semester) filter.semester = semester;
+    if (subject) filter.subject = new RegExp(subject, 'i'); // Case-insensitive partial match
 
     // ── Full-text search across title and description ──
     if (search) {
       filter.$or = [
-        { title:       new RegExp(search, 'i') },
+        { title: new RegExp(search, 'i') },
         { description: new RegExp(search, 'i') },
-        { subject:     new RegExp(search, 'i') }
+        { subject: new RegExp(search, 'i') }
       ];
     }
 
     // ── Pagination calculations ──
-    const skip  = (page - 1) * limit; // How many docs to skip
+    const skip = (page - 1) * limit; // How many docs to skip
     const total = await File.countDocuments(filter); // Total matching docs
 
     // ── Fetch files from DB ──
@@ -198,9 +215,9 @@ router.get('/', async (req, res) => {
       files,
       pagination: {
         total,
-        page:       Number(page),
-        pages:      Math.ceil(total / limit), // Total number of pages
-        hasMore:    skip + files.length < total
+        page: Number(page),
+        pages: Math.ceil(total / limit), // Total number of pages
+        hasMore: skip + files.length < total
       }
     });
 
@@ -253,7 +270,7 @@ router.get('/download/:id', async (req, res) => {
 // ════════════════════════════════════════════════════════════
 router.post('/like/:id', protect, async (req, res) => {
   try {
-    const file   = await File.findById(req.params.id);
+    const file = await File.findById(req.params.id);
     const userId = req.user._id;
 
     if (!file) return res.status(404).json({ message: 'File not found' });
@@ -265,14 +282,14 @@ router.post('/like/:id', protect, async (req, res) => {
       // Unlike: remove user from likedBy and decrement count
       await File.findByIdAndUpdate(req.params.id, {
         $pull: { likedBy: userId },  // $pull removes an element from array
-        $inc:  { likes: -1 }
+        $inc: { likes: -1 }
       });
       res.json({ message: 'Unliked', liked: false });
     } else {
       // Like: add user to likedBy and increment count
       await File.findByIdAndUpdate(req.params.id, {
         $addToSet: { likedBy: userId }, // $addToSet adds only if not already present
-        $inc:      { likes: 1 }
+        $inc: { likes: 1 }
       });
       // Award +1 point to uploader when someone likes their file
       await User.findByIdAndUpdate(file.uploadedBy, { $inc: { points: 1 } });
@@ -296,20 +313,29 @@ router.delete('/:id', protect, async (req, res) => {
 
     // ── Check ownership or admin role ──
     const isOwner = file.uploadedBy.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-
-    if (!isOwner && !isAdmin) {
+    // ── Force Delete Admin Access ──
+    if (req.user.role !== 'admin' && file.uploadedBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to delete this file' });
     }
 
     // ── Delete the actual file from disk ──
-    const filePath = path.join(__dirname, '..', file.filePath);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath); // Synchronously delete the file
+    const absolutePath = path.join(__dirname, '..', file.filePath.replace(/\//g, path.sep));
+    if (fs.existsSync(absolutePath)) {
+      try {
+        fs.unlinkSync(absolutePath);
+      } catch (err) {
+        console.error('Failed to delete file from disk:', err);
+      }
     }
-
     // ── Delete the database record ──
     await File.findByIdAndDelete(req.params.id);
+
+    // ── Log activity for admin ──
+    await Activity.create({
+      action: 'delete_file',
+      description: `Deleted file: ${file.title}`,
+      user: req.user._id
+    });
 
     res.json({ message: 'File deleted successfully' });
 

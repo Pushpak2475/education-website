@@ -13,12 +13,12 @@
 // ════════════════════════════════════════════════════════════
 
 const express = require('express');
-const router  = express.Router();
-const path    = require('path');
-const fs      = require('fs');
+const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 
-const User    = require('../models/User');
-const File    = require('../models/File');
+const User = require('../models/User');
+const File = require('../models/File');
 const Message = require('../models/Message');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -93,10 +93,10 @@ router.get('/users', async (req, res) => {
 
     // Build filter
     const filter = {};
-    if (role)   filter.role = role;
+    if (role) filter.role = role;
     if (search) {
       filter.$or = [
-        { name:  new RegExp(search, 'i') },
+        { name: new RegExp(search, 'i') },
         { email: new RegExp(search, 'i') }
       ];
     }
@@ -127,7 +127,7 @@ router.put('/users/:id', async (req, res) => {
 
     // Only update fields that were provided
     if (isBanned !== undefined) updates.isBanned = isBanned;
-    if (role)                   updates.role     = role;
+    if (role) updates.role = role;
 
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -215,6 +215,89 @@ router.delete('/files/:id', async (req, res) => {
     res.json({ message: 'File deleted by admin' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete file' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// DELETE /api/admin/chat/:id
+// ── DELETE A SPECIFIC CHAT MESSAGE ──
+// ════════════════════════════════════════════════════════════
+router.delete('/chat/:id', async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id);
+    if (!message) return res.status(404).json({ message: 'Message not found' });
+    await Message.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Message deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete message' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// DELETE /api/admin/chat/clear/:room
+// ── CLEAR ENTIRE CHAT ROOM ──
+// ════════════════════════════════════════════════════════════
+router.delete('/chat/clear/:room', async (req, res) => {
+  try {
+    const { room } = req.params;
+    await Message.deleteMany({ room: room.toLowerCase() });
+    res.json({ message: `Room ${room} cleared` });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to clear room' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// GET /api/admin/activity
+// ── FETCH GLOBAL ACTIVITY LOG ──
+// ════════════════════════════════════════════════════════════
+const Activity = require('../models/Activity');
+router.get('/activity', async (req, res) => {
+  try {
+    const activities = await Activity.find()
+      .populate('user', 'name role')
+      .sort({ createdAt: -1 })
+      .limit(100);
+    res.json({ activities });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch activity log' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// DEPARTMENT MANAGEMENT
+// ════════════════════════════════════════════════════════════
+const Department = require('../models/Department');
+
+router.post('/departments', async (req, res) => {
+  try {
+    const { name, code } = req.body;
+    const dept = await Department.create({ name, code });
+    res.status(201).json({ message: 'Department added', dept });
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ message: 'Department name or code already exists' });
+    res.status(500).json({ message: 'Failed to add department' });
+  }
+});
+
+router.put('/departments/:id', async (req, res) => {
+  try {
+    const { name, code } = req.body;
+    const dept = await Department.findByIdAndUpdate(req.params.id, { name, code }, { new: true });
+    if (!dept) return res.status(404).json({ message: 'Department not found' });
+    res.json({ message: 'Department updated', dept });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update department' });
+  }
+});
+
+router.delete('/departments/:id', async (req, res) => {
+  try {
+    const dept = await Department.findByIdAndDelete(req.params.id);
+    if (!dept) return res.status(404).json({ message: 'Department not found' });
+    res.json({ message: 'Department deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete department' });
   }
 });
 

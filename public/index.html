@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<!--
+  <!--
   ════════════════════════════════════════════════════════════
   public/index.html — MAIN FRONTEND FILE
   ════════════════════════════════════════════════════════════
@@ -15,1035 +16,2259 @@
   3. Handles login/register/upload/chat via JavaScript
   ════════════════════════════════════════════════════════════
 -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EduVault — College Knowledge Hub</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduVault — College Knowledge Hub</title>
 
-<!-- Google Fonts — for beautiful typography -->
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <!-- Google Fonts — for beautiful typography -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:wght@700&display=swap"
+    rel="stylesheet">
 
-<!-- Socket.IO client — loaded from the server automatically -->
-<!-- This gives us the `io()` function to connect to our WebSocket server -->
-<script src="/socket.io/socket.io.js"></script>
+  <!-- Socket.IO client — loaded from the server automatically -->
+  <!-- This gives us the `io()` function to connect to our WebSocket server -->
+  <script src="/socket.io/socket.io.js"></script>
 
-<style>
-/* ════════════════════════════════════
+  <style>
+    /* ════════════════════════════════════
    CSS VARIABLES — Central color theme
    Change these to retheme the whole site
    ════════════════════════════════════ */
-:root {
-  --bg:      #0a0e1a;
-  --bg2:     #0f1426;
-  --card:    #131929;
-  --card2:   #1a2240;
-  --accent:  #4f8ef7;
-  --accent2: #7c3aed;
-  --accent3: #06d6a0;
-  --accent4: #f72585;
-  --text:    #e8eaf6;
-  --text2:   #8892b0;
-  --text3:   #4a5580;
-  --border:  rgba(79,142,247,0.15);
-  --glow:    0 0 30px rgba(79,142,247,0.2);
-  --r:       14px;
-}
+    :root {
+      --bg: #0a0e1a;
+      --bg2: #0f1426;
+      --card: #131929;
+      --card2: #1a2240;
+      --accent: #4f8ef7;
+      --accent2: #7c3aed;
+      --accent3: #06d6a0;
+      --accent4: #f72585;
+      --text: #e8eaf6;
+      --text2: #8892b0;
+      --text3: #4a5580;
+      --border: rgba(79, 142, 247, 0.15);
+      --glow: 0 0 30px rgba(79, 142, 247, 0.2);
+      --r: 14px;
+    }
 
-/* ── Reset & Base ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    /* ── Reset & Base ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* ── NAVBAR ── */
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;background:rgba(10,14,26,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:.5rem;font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--text);cursor:pointer}
-.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.nav-links{display:flex;align-items:center;gap:.3rem;list-style:none}
-.nav-links button{background:none;border:none;color:var(--text2);padding:.4rem .85rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:.86rem;font-weight:500;cursor:pointer;transition:all .2s}
-.nav-links button:hover,.nav-links button.active{color:var(--text);background:var(--card2)}
-.nav-actions{display:flex;gap:.5rem}
+    html {
+      scroll-behavior: smooth
+    }
 
-/* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:10px;font-family:'Sora',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
-.btn-ghost:hover{background:var(--card2);color:var(--text)}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.btn-primary:hover{opacity:.85;transform:translateY(-1px);box-shadow:var(--glow)}
-.btn-danger{background:rgba(247,37,133,.15);color:var(--accent4);border:1px solid rgba(247,37,133,.3)}
-.btn-danger:hover{background:rgba(247,37,133,.25)}
-.btn-success{background:rgba(6,214,160,.15);color:var(--accent3);border:1px solid rgba(6,214,160,.3)}
-.btn-sm{padding:.35rem .8rem;font-size:.78rem}
-.btn-full{width:100%;justify-content:center;padding:.7rem}
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden
+    }
 
-/* ── PAGE SYSTEM ── each page div is hidden/shown by JS ── */
-.page{display:none}
-.page.active{display:block}
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 64px;
+      background: rgba(10, 14, 26, .9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border)
+    }
 
-/* ── HERO SECTION ── */
-.hero{position:relative;overflow:hidden;padding:4rem 2rem 3rem;text-align:center}
-.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(79,142,247,.18) 0%,rgba(124,58,237,.1) 40%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:50px;padding:.3rem .8rem;font-size:.76rem;font-weight:600;margin-bottom:1.2rem;letter-spacing:.04em}
-.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin-bottom:1rem}
-.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{color:var(--text2);font-size:1rem;max-width:560px;margin:0 auto 2rem;line-height:1.7}
-.hero-btns{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
-.stats-row{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;padding-top:2rem;border-top:1px solid var(--border);max-width:650px;margin:0 auto}
-.stat-num{font-size:1.7rem;font-weight:800;color:var(--accent)}
-.stat-label{font-size:.75rem;color:var(--text3);margin-top:.1rem}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer
+    }
 
-/* ── SEARCH BAR ── */
-.search-wrap{padding:0 2rem 2.5rem;max-width:860px;margin:0 auto}
-.search-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.7rem;align-items:end}
-@media(max-width:700px){.search-box{grid-template-columns:1fr}}
-.f-label{display:block;font-size:.72rem;font-weight:600;color:var(--text3);letter-spacing:.06em;margin-bottom:.35rem;text-transform:uppercase}
-.f-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Sora',sans-serif;font-size:.86rem;padding:.55rem .85rem;outline:none;transition:border-color .2s}
-.f-input:focus{border-color:var(--accent)}
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px
+    }
 
-/* ── LAYOUT ── */
-.main-wrap{display:flex;gap:1.5rem;padding:0 2rem 4rem;max-width:1380px;margin:0 auto}
-.sidebar{width:220px;flex-shrink:0}
-.content-area{flex:1;min-width:0}
-.right-col{width:280px;flex-shrink:0}
-@media(max-width:1100px){.right-col{display:none}}
-@media(max-width:768px){.sidebar{display:none}.main-wrap{padding:0 1rem 3rem}}
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      list-style: none
+    }
 
-/* ── SIDEBAR ITEMS ── */
-.sb-title{font-size:.68rem;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:.5rem .6rem;margin-top:.8rem}
-.sb-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;border-radius:10px;font-size:.84rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;border:1px solid transparent}
-.sb-item:hover{background:var(--card);color:var(--text)}
-.sb-item.active{background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.25);color:var(--accent)}
-.sb-badge{margin-left:auto;background:var(--card2);color:var(--text3);font-size:.68rem;padding:.1rem .4rem;border-radius:50px}
+    .nav-links button {
+      background: none;
+      border: none;
+      color: var(--text2);
+      padding: .4rem .85rem;
+      border-radius: 8px;
+      font-family: 'Sora', sans-serif;
+      font-size: .86rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s
+    }
 
-/* ── CONTENT HEADER ── */
-.content-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.7rem}
-.content-hdr h2{font-size:1.2rem;font-weight:700}
-.tabs{display:flex;gap:.3rem;background:var(--card);border-radius:9px;padding:.25rem}
-.tab{padding:.35rem .85rem;border-radius:7px;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;border:none;background:none;font-family:'Sora',sans-serif}
-.tab.active{background:var(--card2);color:var(--text)}
+    .nav-links button:hover,
+    .nav-links button.active {
+      color: var(--text);
+      background: var(--card2)
+    }
 
-/* ── FILE CARDS ── */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
-.file-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;animation:fadeUp .4s ease both}
-.file-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.file-card.notes::before{background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.file-card.pyq::before{background:linear-gradient(90deg,var(--accent3),var(--accent))}
-.file-card.assignment::before,.file-card.lab-manual::before{background:linear-gradient(90deg,var(--accent4),#ff9500)}
-.file-card:hover{border-color:rgba(79,142,247,.4);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
-.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.8rem}
-.file-ico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
-.type-badge{font-size:.66rem;font-weight:700;letter-spacing:.06em;padding:.18rem .45rem;border-radius:5px;text-transform:uppercase}
-.tb-notes{background:rgba(79,142,247,.15);color:var(--accent)}
-.tb-pyq{background:rgba(6,214,160,.15);color:var(--accent3)}
-.tb-assignment,.tb-lab-manual{background:rgba(247,37,133,.15);color:var(--accent4)}
-.card-subject{font-size:.76rem;color:var(--accent);font-weight:600;margin-bottom:.25rem}
-.card-title{font-size:.9rem;font-weight:600;margin-bottom:.5rem;line-height:1.4}
-.card-meta{display:flex;gap:.6rem;flex-wrap:wrap;font-size:.72rem;color:var(--text3);margin-bottom:.8rem}
-.card-actions{display:flex;gap:.45rem;padding-top:.75rem;border-top:1px solid var(--border)}
-.card-btn{flex:1;padding:.38rem;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Sora',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.25rem}
-.card-btn:hover{background:var(--card2);color:var(--text);border-color:var(--accent)}
-.card-btn.dl:hover{background:rgba(6,214,160,.1);color:var(--accent3);border-color:var(--accent3)}
-.no-files{text-align:center;padding:3rem;color:var(--text3);font-size:.9rem}
+    .nav-actions {
+      display: flex;
+      gap: .5rem
+    }
 
-/* ── RIGHT COLUMN PANELS ── */
-.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;margin-bottom:1rem}
-.panel-title{font-size:.75rem;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.9rem}
-.act-item{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.65rem}
-.act-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
-.act-text{font-size:.78rem;line-height:1.4}
-.act-time{font-size:.7rem;color:var(--text3);margin-top:.1rem}
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .5rem 1.1rem;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s
+    }
 
-/* ── MODAL (Upload / Auth) ── */
-.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .3s}
-.overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;transform:translateY(20px);transition:transform .3s;padding:1.8rem;scrollbar-width:thin}
-.overlay.open .modal{transform:translateY(0)}
-.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem}
-.modal-hdr h2{font-size:1.15rem;font-weight:700}
-.close-btn{width:32px;height:32px;border-radius:7px;background:var(--card);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.close-btn:hover{color:var(--text);background:var(--card2)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.form-group{margin-bottom:.85rem}
-.form-group label{display:block;font-size:.72rem;font-weight:600;color:var(--text3);letter-spacing:.06em;margin-bottom:.35rem;text-transform:uppercase}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Sora',sans-serif;font-size:.86rem;padding:.6rem .85rem;outline:none;transition:border-color .2s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
-.form-group textarea{resize:vertical;min-height:75px}
-.drop-zone{border:2px dashed var(--border);border-radius:11px;padding:2.2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);margin-bottom:.85rem}
-.drop-zone:hover{border-color:var(--accent);background:rgba(79,142,247,.05)}
-.drop-ico{font-size:2rem;margin-bottom:.5rem}
-.drop-title{font-weight:600;margin-bottom:.25rem;font-size:.9rem}
-.drop-sub{font-size:.76rem;color:var(--text3)}
-.form-btns{display:flex;gap:.7rem;margin-top:1rem}
+    .btn-ghost {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid var(--border)
+    }
 
-/* ── AUTH TABS ── */
-.auth-tabs{display:flex;background:var(--bg);border-radius:10px;padding:.25rem;margin-bottom:1.3rem}
-.auth-tab{flex:1;text-align:center;padding:.5rem;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s}
-.auth-tab.active{background:var(--card2);color:var(--text)}
+    .btn-ghost:hover {
+      background: var(--card2);
+      color: var(--text)
+    }
 
-/* ── CHAT PAGE ── */
-.chat-wrap{display:grid;grid-template-columns:210px 1fr;gap:1.2rem;padding:0 2rem 4rem;max-width:1200px;margin:0 auto}
-@media(max-width:768px){.chat-wrap{grid-template-columns:1fr;padding:0 1rem 3rem}}
-.room-list{display:flex;flex-direction:column;gap:.35rem}
-.chat-box{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;height:540px}
-.chat-hdr{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.7rem}
-.chat-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
-.chat-online{font-size:.72rem;color:var(--accent3)}
-.chat-msgs{flex:1;overflow-y:auto;padding:.9rem 1.2rem;display:flex;flex-direction:column;gap:.7rem;scrollbar-width:thin}
-.msg{display:flex;gap:.5rem;align-items:flex-start}
-.msg.own{flex-direction:row-reverse}
-.msg-av{width:28px;height:28px;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.msg-body{max-width:65%}
-.msg-name{font-size:.68rem;color:var(--text3);margin-bottom:.15rem}
-.msg.own .msg-name{text-align:right}
-.msg-bubble{padding:.5rem .8rem;border-radius:13px;font-size:.83rem;line-height:1.5}
-.msg .msg-bubble{background:var(--card2);border-bottom-left-radius:4px}
-.msg.own .msg-bubble{background:linear-gradient(135deg,var(--accent),var(--accent2));border-bottom-right-radius:4px}
-.msg-time{font-size:.65rem;color:var(--text3);margin-top:.15rem}
-.msg.own .msg-time{text-align:right}
-.typing-indicator{font-size:.75rem;color:var(--text3);padding:.2rem .5rem;font-style:italic}
-.chat-input-row{padding:.8rem 1rem;border-top:1px solid var(--border);display:flex;gap:.5rem;align-items:flex-end}
-.chat-textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:11px;color:var(--text);font-family:'Sora',sans-serif;font-size:.86rem;padding:.55rem .9rem;outline:none;resize:none;max-height:100px;transition:border-color .2s}
-.chat-textarea:focus{border-color:var(--accent)}
-.send-btn{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.send-btn:hover{opacity:.85;transform:scale(1.05)}
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff
+    }
 
-/* ── ADMIN PAGE ── */
-.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;text-align:center}
-.stat-card .big{font-size:2rem;font-weight:800;margin-bottom:.25rem}
-.stat-card .label{font-size:.76rem;color:var(--text3)}
-.data-table{width:100%;border-collapse:collapse}
-.data-table th{text-align:left;padding:.7rem .9rem;font-size:.72rem;font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)}
-.data-table td{padding:.7rem .9rem;font-size:.83rem;border-bottom:1px solid rgba(255,255,255,.03)}
-.data-table tr:hover td{background:var(--card2)}
-.role-badge{font-size:.7rem;font-weight:700;padding:.15rem .45rem;border-radius:5px}
-.rb-admin{background:rgba(247,37,133,.15);color:var(--accent4)}
-.rb-faculty{background:rgba(79,142,247,.15);color:var(--accent)}
-.rb-student{background:rgba(6,214,160,.15);color:var(--accent3)}
+    .btn-primary:hover {
+      opacity: .85;
+      transform: translateY(-1px);
+      box-shadow: var(--glow)
+    }
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:500;background:var(--card2);border:1px solid var(--accent);border-radius:11px;padding:.8rem 1.2rem;font-size:.85rem;font-weight:500;box-shadow:var(--glow);transform:translateY(80px);opacity:0;transition:all .3s;max-width:300px}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.error{border-color:var(--accent4)}
-.toast.success{border-color:var(--accent3)}
+    .btn-danger {
+      background: rgba(247, 37, 133, .15);
+      color: var(--accent4);
+      border: 1px solid rgba(247, 37, 133, .3)
+    }
 
-/* ── LOADING SPINNER ── */
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+    .btn-danger:hover {
+      background: rgba(247, 37, 133, .25)
+    }
 
-/* ── ANIMATIONS ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .btn-success {
+      background: rgba(6, 214, 160, .15);
+      color: var(--accent3);
+      border: 1px solid rgba(6, 214, 160, .3)
+    }
 
-/* ── PROFILE PAGE ── */
-.profile-grid{display:grid;grid-template-columns:280px 1fr;gap:1.5rem;padding:0 2rem 4rem;max-width:1100px;margin:0 auto}
-@media(max-width:768px){.profile-grid{grid-template-columns:1fr;padding:0 1rem 3rem}}
+    .btn-sm {
+      padding: .35rem .8rem;
+      font-size: .78rem
+    }
 
-/* ── UTIL ── */
-.hidden{display:none!important}
-.mt1{margin-top:.5rem}
-.section-divider{display:flex;align-items:center;gap:1rem;padding:0 2rem;max-width:1380px;margin:0 auto 1.2rem}
-.section-divider h2{font-size:1.3rem;font-weight:700;white-space:nowrap}
-.section-line{flex:1;height:1px;background:var(--border)}
-</style>
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+      padding: .7rem
+    }
+
+    /* ── PAGE SYSTEM ── each page div is hidden/shown by JS ── */
+    .page {
+      display: none
+    }
+
+    .page.active {
+      display: block
+    }
+
+    /* ── HERO SECTION ── */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 4rem 2rem 3rem;
+      text-align: center
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(79, 142, 247, .18) 0%, rgba(124, 58, 237, .1) 40%, transparent 70%);
+      pointer-events: none
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(79, 142, 247, .1);
+      border: 1px solid rgba(79, 142, 247, .3);
+      color: var(--accent);
+      border-radius: 50px;
+      padding: .3rem .8rem;
+      font-size: .76rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      letter-spacing: .04em
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1rem
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .hero p {
+      color: var(--text2);
+      font-size: 1rem;
+      max-width: 560px;
+      margin: 0 auto 2rem;
+      line-height: 1.7
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: .8rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      max-width: 650px;
+      margin: 0 auto
+    }
+
+    .stat-num {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--accent)
+    }
+
+    .stat-label {
+      font-size: .75rem;
+      color: var(--text3);
+      margin-top: .1rem
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap {
+      padding: 0 2rem 2.5rem;
+      max-width: 860px;
+      margin: 0 auto
+    }
+
+    .search-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: .7rem;
+      align-items: end
+    }
+
+    @media(max-width:700px) {
+      .search-box {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .f-label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text3);
+      letter-spacing: .06em;
+      margin-bottom: .35rem;
+      text-transform: uppercase
+    }
+
+    .f-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: .86rem;
+      padding: .55rem .85rem;
+      outline: none;
+      transition: border-color .2s
+    }
+
+    .f-input:focus {
+      border-color: var(--accent)
+    }
+
+    /* ── LAYOUT ── */
+    .main-wrap {
+      display: flex;
+      gap: 1.5rem;
+      padding: 0 2rem 4rem;
+      max-width: 1380px;
+      margin: 0 auto
+    }
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0
+    }
+
+    .content-area {
+      flex: 1;
+      min-width: 0
+    }
+
+    .right-col {
+      width: 280px;
+      flex-shrink: 0
+    }
+
+    @media(max-width:1100px) {
+      .right-col {
+        display: none
+      }
+    }
+
+    @media(max-width:768px) {
+      .sidebar {
+        display: none
+      }
+
+      .main-wrap {
+        padding: 0 1rem 3rem
+      }
+    }
+
+    /* ── SIDEBAR ITEMS ── */
+    .sb-title {
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .5rem .6rem;
+      margin-top: .8rem
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .55rem .75rem;
+      border-radius: 10px;
+      font-size: .84rem;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .15s;
+      border: 1px solid transparent
+    }
+
+    .sb-item:hover {
+      background: var(--card);
+      color: var(--text)
+    }
+
+    .sb-item.active {
+      background: rgba(79, 142, 247, .12);
+      border-color: rgba(79, 142, 247, .25);
+      color: var(--accent)
+    }
+
+    .sb-badge {
+      margin-left: auto;
+      background: var(--card2);
+      color: var(--text3);
+      font-size: .68rem;
+      padding: .1rem .4rem;
+      border-radius: 50px
+    }
+
+    /* ── CONTENT HEADER ── */
+    .content-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: .7rem
+    }
+
+    .content-hdr h2 {
+      font-size: 1.2rem;
+      font-weight: 700
+    }
+
+    .tabs {
+      display: flex;
+      gap: .3rem;
+      background: var(--card);
+      border-radius: 9px;
+      padding: .25rem
+    }
+
+    .tab {
+      padding: .35rem .85rem;
+      border-radius: 7px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all .2s;
+      border: none;
+      background: none;
+      font-family: 'Sora', sans-serif
+    }
+
+    .tab.active {
+      background: var(--card2);
+      color: var(--text)
+    }
+
+    /* ── FILE CARDS ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1rem
+    }
+
+    .file-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.1rem;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp .4s ease both
+    }
+
+    .file-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px
+    }
+
+    .file-card.notes::before {
+      background: linear-gradient(90deg, var(--accent), var(--accent2))
+    }
+
+    .file-card.pyq::before {
+      background: linear-gradient(90deg, var(--accent3), var(--accent))
+    }
+
+    .file-card.assignment::before,
+    .file-card.lab-manual::before {
+      background: linear-gradient(90deg, var(--accent4), #ff9500)
+    }
+
+    .file-card:hover {
+      border-color: rgba(79, 142, 247, .4);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .3)
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: .8rem
+    }
+
+    .file-ico {
+      width: 40px;
+      height: 40px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem
+    }
+
+    .type-badge {
+      font-size: .66rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: .18rem .45rem;
+      border-radius: 5px;
+      text-transform: uppercase
+    }
+
+    .tb-notes {
+      background: rgba(79, 142, 247, .15);
+      color: var(--accent)
+    }
+
+    .tb-pyq {
+      background: rgba(6, 214, 160, .15);
+      color: var(--accent3)
+    }
+
+    .tb-assignment,
+    .tb-lab-manual {
+      background: rgba(247, 37, 133, .15);
+      color: var(--accent4)
+    }
+
+    .card-subject {
+      font-size: .76rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: .25rem
+    }
+
+    .card-title {
+      font-size: .9rem;
+      font-weight: 600;
+      margin-bottom: .5rem;
+      line-height: 1.4
+    }
+
+    .card-meta {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      font-size: .72rem;
+      color: var(--text3);
+      margin-bottom: .8rem
+    }
+
+    .card-actions {
+      display: flex;
+      gap: .45rem;
+      padding-top: .75rem;
+      border-top: 1px solid var(--border)
+    }
+
+    .card-btn {
+      flex: 1;
+      padding: .38rem;
+      border-radius: 7px;
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      font-family: 'Sora', sans-serif;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem
+    }
+
+    .card-btn:hover {
+      background: var(--card2);
+      color: var(--text);
+      border-color: var(--accent)
+    }
+
+    .card-btn.dl:hover {
+      background: rgba(6, 214, 160, .1);
+      color: var(--accent3);
+      border-color: var(--accent3)
+    }
+
+    .no-files {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text3);
+      font-size: .9rem
+    }
+
+    /* ── RIGHT COLUMN PANELS ── */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.1rem;
+      margin-bottom: 1rem
+    }
+
+    .panel-title {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--text2);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: .9rem
+    }
+
+    .act-item {
+      display: flex;
+      gap: .6rem;
+      align-items: flex-start;
+      margin-bottom: .65rem
+    }
+
+    .act-ico {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      flex-shrink: 0
+    }
+
+    .act-text {
+      font-size: .78rem;
+      line-height: 1.4
+    }
+
+    .act-time {
+      font-size: .7rem;
+      color: var(--text3);
+      margin-top: .1rem
+    }
+
+    /* ── MODAL (Upload / Auth) ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, .75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s
+    }
+
+    .overlay.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: transform .3s;
+      padding: 1.8rem;
+      scrollbar-width: thin
+    }
+
+    .overlay.open .modal {
+      transform: translateY(0)
+    }
+
+    .modal-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.3rem
+    }
+
+    .modal-hdr h2 {
+      font-size: 1.15rem;
+      font-weight: 700
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s
+    }
+
+    .close-btn:hover {
+      color: var(--text);
+      background: var(--card2)
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem
+    }
+
+    .form-group {
+      margin-bottom: .85rem
+    }
+
+    .form-group label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text3);
+      letter-spacing: .06em;
+      margin-bottom: .35rem;
+      text-transform: uppercase
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: .86rem;
+      padding: .6rem .85rem;
+      outline: none;
+      transition: border-color .2s
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent)
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 75px
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 11px;
+      padding: 2.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--bg);
+      margin-bottom: .85rem
+    }
+
+    .drop-zone:hover {
+      border-color: var(--accent);
+      background: rgba(79, 142, 247, .05)
+    }
+
+    .drop-ico {
+      font-size: 2rem;
+      margin-bottom: .5rem
+    }
+
+    .drop-title {
+      font-weight: 600;
+      margin-bottom: .25rem;
+      font-size: .9rem
+    }
+
+    .drop-sub {
+      font-size: .76rem;
+      color: var(--text3)
+    }
+
+    .form-btns {
+      display: flex;
+      gap: .7rem;
+      margin-top: 1rem
+    }
+
+    /* ── AUTH TABS ── */
+    .auth-tabs {
+      display: flex;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: .25rem;
+      margin-bottom: 1.3rem
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: .5rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all .2s
+    }
+
+    .auth-tab.active {
+      background: var(--card2);
+      color: var(--text)
+    }
+
+    /* ── CHAT PAGE ── */
+    .chat-wrap {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 1.2rem;
+      padding: 0 2rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto
+    }
+
+    @media(max-width:768px) {
+      .chat-wrap {
+        grid-template-columns: 1fr;
+        padding: 0 1rem 3rem
+      }
+    }
+
+    .room-list {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem
+    }
+
+    .chat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 540px
+    }
+
+    .chat-hdr {
+      padding: .9rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .7rem
+    }
+
+    .chat-av {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    .chat-online {
+      font-size: .72rem;
+      color: var(--accent3)
+    }
+
+    .chat-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: .9rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+      scrollbar-width: thin
+    }
+
+    .msg {
+      display: flex;
+      gap: .5rem;
+      align-items: flex-start
+    }
+
+    .msg.own {
+      flex-direction: row-reverse
+    }
+
+    .msg-av {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: .7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .msg-body {
+      max-width: 65%
+    }
+
+    .msg-name {
+      font-size: .68rem;
+      color: var(--text3);
+      margin-bottom: .15rem
+    }
+
+    .msg.own .msg-name {
+      text-align: right
+    }
+
+    .msg-bubble {
+      padding: .5rem .8rem;
+      border-radius: 13px;
+      font-size: .83rem;
+      line-height: 1.5
+    }
+
+    .msg .msg-bubble {
+      background: var(--card2);
+      border-bottom-left-radius: 4px
+    }
+
+    .msg.own .msg-bubble {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-bottom-right-radius: 4px
+    }
+
+    .msg-time {
+      font-size: .65rem;
+      color: var(--text3);
+      margin-top: .15rem
+    }
+
+    .msg.own .msg-time {
+      text-align: right
+    }
+
+    .typing-indicator {
+      font-size: .75rem;
+      color: var(--text3);
+      padding: .2rem .5rem;
+      font-style: italic
+    }
+
+    .chat-input-row {
+      padding: .8rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: .5rem;
+      align-items: flex-end
+    }
+
+    .chat-textarea {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: .86rem;
+      padding: .55rem .9rem;
+      outline: none;
+      resize: none;
+      max-height: 100px;
+      transition: border-color .2s
+    }
+
+    .chat-textarea:focus {
+      border-color: var(--accent)
+    }
+
+    .send-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      cursor: pointer;
+      font-size: .95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      flex-shrink: 0
+    }
+
+    .send-btn:hover {
+      opacity: .85;
+      transform: scale(1.05)
+    }
+
+    /* ── ADMIN PAGE ── */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.2rem;
+      text-align: center
+    }
+
+    .stat-card .big {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: .25rem
+    }
+
+    .stat-card .label {
+      font-size: .76rem;
+      color: var(--text3)
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: .7rem .9rem;
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .data-table td {
+      padding: .7rem .9rem;
+      font-size: .83rem;
+      border-bottom: 1px solid rgba(255, 255, 255, .03)
+    }
+
+    .data-table tr:hover td {
+      background: var(--card2)
+    }
+
+    .role-badge {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .15rem .45rem;
+      border-radius: 5px
+    }
+
+    .rb-admin {
+      background: rgba(247, 37, 133, .15);
+      color: var(--accent4)
+    }
+
+    .rb-faculty {
+      background: rgba(79, 142, 247, .15);
+      color: var(--accent)
+    }
+
+    .rb-student {
+      background: rgba(6, 214, 160, .15);
+      color: var(--accent3)
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 500;
+      background: var(--card2);
+      border: 1px solid var(--accent);
+      border-radius: 11px;
+      padding: .8rem 1.2rem;
+      font-size: .85rem;
+      font-weight: 500;
+      box-shadow: var(--glow);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      max-width: 300px
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1
+    }
+
+    .toast.error {
+      border-color: var(--accent4)
+    }
+
+    .toast.success {
+      border-color: var(--accent3)
+    }
+
+    /* ── LOADING SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* ── PROFILE PAGE ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1.5rem;
+      padding: 0 2rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto
+    }
+
+    @media(max-width:768px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+        padding: 0 1rem 3rem
+      }
+    }
+
+    /* ── UTIL ── */
+    .hidden {
+      display: none !important
+    }
+
+    .mt1 {
+      margin-top: .5rem
+    }
+
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 2rem;
+      max-width: 1380px;
+      margin: 0 auto 1.2rem
+    }
+
+    .section-divider h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      white-space: nowrap
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border)
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      NAVBAR
      Navigation bar shown on every page.
      Buttons call showPage() to switch views.
 ═══════════════════════════════════════════════ -->
-<nav>
-  <div class="logo" onclick="showPage('home')">
-    <div class="logo-icon">📚</div>EduVault
-  </div>
+  <nav>
+    <div class="logo" onclick="showPage('home')">
+      <div class="logo-icon">📚</div>EduVault
+    </div>
 
-  <!-- Navigation links — each calls showPage() -->
-  <ul class="nav-links">
-    <li><button onclick="showPage('home')"    class="active" id="nav-home">🏠 Home</button></li>
-    <li><button onclick="showPage('browse')"  id="nav-browse">📂 Browse</button></li>
-    <li><button onclick="showPage('chat')"    id="nav-chat">💬 Chat</button></li>
-    <li><button onclick="showPage('profile')" id="nav-profile" class="hidden">👤 Profile</button></li>
-    <li><button onclick="showPage('admin')"   id="nav-admin"   class="hidden">⚙️ Admin</button></li>
-  </ul>
+    <!-- Navigation links — each calls showPage() -->
+    <ul class="nav-links">
+      <li><button onclick="showPage('home')" class="active" id="nav-home">🏠 Home</button></li>
+      <li><button onclick="showPage('browse')" id="nav-browse">📂 Browse</button></li>
+      <li><button onclick="showPage('chat')" id="nav-chat">💬 Chat</button></li>
+      <li><button onclick="showPage('student')" id="nav-student" class="hidden">🎓 Student Panel</button></li>
+      <li><button onclick="showPage('faculty')" id="nav-faculty" class="hidden">👨‍🏫 Faculty Panel</button></li>
+      <li><button onclick="showPage('admin')" id="nav-admin" class="hidden">⚙️ Admin Hub</button></li>
+    </ul>
 
-  <!-- Right side: Upload button + auth buttons -->
-  <div class="nav-actions">
-    <button class="btn btn-ghost" id="upload-btn" onclick="openUpload()" style="display:none">⬆ Upload</button>
-    <button class="btn btn-ghost" onclick="openAuth('login')" id="login-btn">Sign In</button>
-    <button class="btn btn-primary" onclick="openAuth('register')" id="register-btn">Sign Up</button>
-    <button class="btn btn-ghost" onclick="logout()" id="logout-btn" style="display:none">Sign Out</button>
-  </div>
-</nav>
+    <!-- Right side: Upload button + auth buttons -->
+    <div class="nav-actions">
+      <button class="btn btn-ghost" id="upload-btn" onclick="openUpload()" style="display:none">⬆ Upload</button>
+      <button class="btn btn-ghost" onclick="openAuth('login')" id="login-btn">Sign In</button>
+      <button class="btn btn-primary" onclick="openAuth('register')" id="register-btn">Sign Up</button>
+      <button class="btn btn-ghost" onclick="logout()" id="logout-btn" style="display:none">Sign Out</button>
+    </div>
+  </nav>
 
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      PAGE: HOME
      Landing page with hero, stats, and recent files
 ═══════════════════════════════════════════════ -->
-<div id="page-home" class="page active">
-  <section class="hero">
-    <div class="hero-glow"></div>
-    <div class="hero-badge">🎓 Your College Knowledge Hub</div>
-    <h1>Share Notes,<br><span>Ace Every Semester</span></h1>
-    <p>Department-wise, semester-wise notes, PYQs and assignments — uploaded by students and faculty.</p>
-    <div class="hero-btns">
-      <button class="btn btn-primary" style="padding:.7rem 1.6rem;font-size:.95rem" onclick="openUpload()">⬆ Upload Notes</button>
-      <button class="btn btn-ghost"   style="padding:.7rem 1.6rem;font-size:.95rem" onclick="showPage('browse')">📂 Browse Files</button>
-    </div>
-    <div class="stats-row">
-      <div class="stat"><div class="stat-num" id="stat-files">0</div><div class="stat-label">Files Uploaded</div></div>
-      <div class="stat"><div class="stat-num" id="stat-users">0</div><div class="stat-label">Active Users</div></div>
-      <div class="stat"><div class="stat-num" id="stat-msgs">0</div><div class="stat-label">Messages Sent</div></div>
-    </div>
-  </section>
-
-  <!-- Quick search on home page -->
-  <div class="search-wrap">
-    <div class="search-box">
-      <div>
-        <label class="f-label">Department</label>
-        <select class="f-input" id="h-dept">
-          <option value="">All Departments</option>
-          <option>CSE</option><option>ECE</option><option>Mechanical</option>
-          <option>Civil</option><option>Electrical</option><option>IT</option><option>MBA</option>
-        </select>
+  <div id="page-home" class="page active">
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-badge">🎓 Your College Knowledge Hub</div>
+      <h1>Share Notes,<br><span>Ace Every Semester</span></h1>
+      <p>Department-wise, semester-wise notes, PYQs and assignments — uploaded by students and faculty.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" style="padding:.7rem 1.6rem;font-size:.95rem" onclick="openUpload()">⬆ Upload
+          Notes</button>
+        <button class="btn btn-ghost" style="padding:.7rem 1.6rem;font-size:.95rem" onclick="showPage('browse')">📂
+          Browse Files</button>
       </div>
-      <div>
-        <label class="f-label">Semester</label>
-        <select class="f-input" id="h-sem">
-          <option value="">All Semesters</option>
-          <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
-          <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
-          <option>Semester 7</option><option>Semester 8</option>
-        </select>
-      </div>
-      <div>
-        <label class="f-label">Search</label>
-        <input class="f-input" id="h-search" type="text" placeholder="Subject or topic...">
-      </div>
-      <button class="btn btn-primary" onclick="doHomeSearch()">🔍 Search</button>
-    </div>
-  </div>
-
-  <!-- Recent Uploads section -->
-  <div class="section-divider">
-    <h2>Recent Uploads</h2>
-    <div class="section-line"></div>
-    <button class="btn btn-ghost btn-sm" onclick="showPage('browse')">View All →</button>
-  </div>
-
-  <div class="main-wrap">
-    <!-- Left sidebar for filtering -->
-    <aside class="sidebar">
-      <div class="sb-title">Filter By Type</div>
-      <div class="sb-item active" onclick="homeFilter('',this)">🏠 All Resources</div>
-      <div class="sb-item" onclick="homeFilter('notes',this)">📝 Notes</div>
-      <div class="sb-item" onclick="homeFilter('pyq',this)">📋 PYQ Papers</div>
-      <div class="sb-item" onclick="homeFilter('assignment',this)">📌 Assignments</div>
-      <div class="sb-item" onclick="homeFilter('lab-manual',this)">🧪 Lab Manuals</div>
-
-      <div class="sb-title">By Department</div>
-      <div class="sb-item" onclick="homeFilter('',this,'CSE')">💻 CSE</div>
-      <div class="sb-item" onclick="homeFilter('',this,'ECE')">📡 ECE</div>
-      <div class="sb-item" onclick="homeFilter('',this,'Mechanical')">⚙️ Mechanical</div>
-      <div class="sb-item" onclick="homeFilter('',this,'Civil')">🏗️ Civil</div>
-      <div class="sb-item" onclick="homeFilter('',this,'IT')">🌐 IT</div>
-    </aside>
-
-    <!-- File cards grid — filled by JavaScript -->
-    <div class="content-area">
-      <div class="content-hdr">
-        <h2 id="home-title">All Resources</h2>
-        <div class="tabs">
-          <button class="tab active" onclick="setHomeSort('createdAt',this)">Latest</button>
-          <button class="tab" onclick="setHomeSort('downloadCount',this)">Popular</button>
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-num" id="stat-files">0</div>
+          <div class="stat-label">Files Uploaded</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-users">0</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-msgs">0</div>
+          <div class="stat-label">Messages Sent</div>
         </div>
       </div>
-      <!-- Cards are injected here by renderCards() -->
-      <div class="cards-grid" id="home-cards"></div>
-      <div id="home-loading" style="text-align:center;padding:2rem;color:var(--text3);display:none">Loading...</div>
+    </section>
+
+    <!-- Quick search on home page -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <div>
+          <label class="f-label">Department</label>
+          <select class="f-input" id="h-dept">
+            <option value="">All Departments</option>
+            <option>CSE</option>
+            <option>ECE</option>
+            <option>Mechanical</option>
+            <option>Civil</option>
+            <option>Electrical</option>
+            <option>IT</option>
+            <option>MBA</option>
+          </select>
+        </div>
+        <div>
+          <label class="f-label">Semester</label>
+          <select class="f-input" id="h-sem">
+            <option value="">All Semesters</option>
+            <option>Semester 1</option>
+            <option>Semester 2</option>
+            <option>Semester 3</option>
+            <option>Semester 4</option>
+            <option>Semester 5</option>
+            <option>Semester 6</option>
+            <option>Semester 7</option>
+            <option>Semester 8</option>
+          </select>
+        </div>
+        <div>
+          <label class="f-label">Search</label>
+          <input class="f-input" id="h-search" type="text" placeholder="Subject or topic...">
+        </div>
+        <button class="btn btn-primary" onclick="doHomeSearch()">🔍 Search</button>
+      </div>
     </div>
 
-    <!-- Right activity panel -->
-    <div class="right-col">
-      <div class="panel">
-        <div class="panel-title">⚡ Recent Activity</div>
-        <div id="activity-feed">
-          <div class="act-item">
-            <div class="act-ico" style="background:rgba(79,142,247,.1)">📝</div>
-            <div><div class="act-text">Loading activity...</div></div>
+    <!-- Recent Uploads section -->
+    <div class="section-divider">
+      <h2>Recent Uploads</h2>
+      <div class="section-line"></div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('browse')">View All →</button>
+    </div>
+
+    <div class="main-wrap">
+      <!-- Left sidebar for filtering -->
+      <aside class="sidebar">
+        <div class="sb-title">Filter By Type</div>
+        <div class="sb-item active" onclick="homeFilter('',this)">🏠 All Resources</div>
+        <div class="sb-item" onclick="homeFilter('notes',this)">📝 Notes</div>
+        <div class="sb-item" onclick="homeFilter('pyq',this)">📋 PYQ Papers</div>
+        <div class="sb-item" onclick="homeFilter('assignment',this)">📌 Assignments</div>
+        <div class="sb-item" onclick="homeFilter('lab-manual',this)">🧪 Lab Manuals</div>
+
+        <div class="sb-title">By Department</div>
+        <div class="sb-item" onclick="homeFilter('',this,'CSE')">💻 CSE</div>
+        <div class="sb-item" onclick="homeFilter('',this,'ECE')">📡 ECE</div>
+        <div class="sb-item" onclick="homeFilter('',this,'Mechanical')">⚙️ Mechanical</div>
+        <div class="sb-item" onclick="homeFilter('',this,'Civil')">🏗️ Civil</div>
+        <div class="sb-item" onclick="homeFilter('',this,'IT')">🌐 IT</div>
+      </aside>
+
+      <!-- File cards grid — filled by JavaScript -->
+      <div class="content-area">
+        <div class="content-hdr">
+          <h2 id="home-title">All Resources</h2>
+          <div class="tabs">
+            <button class="tab active" onclick="setHomeSort('createdAt',this)">Latest</button>
+            <button class="tab" onclick="setHomeSort('downloadCount',this)">Popular</button>
           </div>
         </div>
+        <!-- Cards are injected here by renderCards() -->
+        <div class="cards-grid" id="home-cards"></div>
+        <div id="home-loading" style="text-align:center;padding:2rem;color:var(--text3);display:none">Loading...</div>
       </div>
-      <div class="panel">
-        <div class="panel-title">🏆 Top Contributors</div>
-        <div id="leaderboard">Loading...</div>
+
+      <!-- Right activity panel -->
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-title">⚡ Recent Activity</div>
+          <div id="activity-feed">
+            <div class="act-item">
+              <div class="act-ico" style="background:rgba(79,142,247,.1)">📝</div>
+              <div>
+                <div class="act-text">Loading activity...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">🏆 Top Contributors</div>
+          <div id="leaderboard">Loading...</div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      PAGE: BROWSE
      Full search and browse with all filters
 ═══════════════════════════════════════════════ -->
-<div id="page-browse" class="page">
-  <div style="padding:2rem 2rem 1rem">
-    <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">📂 Browse Resources</h1>
-    <p style="color:var(--text2);font-size:.9rem">Filter by department, semester, year, and type to find exactly what you need.</p>
-  </div>
-
-  <!-- Advanced Filters -->
-  <div style="padding:0 2rem 1.5rem">
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem;align-items:end">
-      <div>
-        <label class="f-label">Type</label>
-        <select class="f-input" id="br-type">
-          <option value="">All Types</option>
-          <option value="notes">Notes</option>
-          <option value="pyq">PYQ Paper</option>
-          <option value="assignment">Assignment</option>
-          <option value="lab-manual">Lab Manual</option>
-          <option value="reference">Reference</option>
-        </select>
-      </div>
-      <div>
-        <label class="f-label">Department</label>
-        <select class="f-input" id="br-dept">
-          <option value="">All Depts</option>
-          <option>CSE</option><option>ECE</option><option>Mechanical</option>
-          <option>Civil</option><option>Electrical</option><option>IT</option><option>MBA</option>
-        </select>
-      </div>
-      <div>
-        <label class="f-label">Year</label>
-        <select class="f-input" id="br-year">
-          <option value="">All Years</option>
-          <option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option>
-        </select>
-      </div>
-      <div>
-        <label class="f-label">Semester</label>
-        <select class="f-input" id="br-sem">
-          <option value="">All Sems</option>
-          <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
-          <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
-          <option>Semester 7</option><option>Semester 8</option>
-        </select>
-      </div>
-      <div>
-        <label class="f-label">Search</label>
-        <input class="f-input" id="br-search" type="text" placeholder="Subject, topic...">
-      </div>
-      <button class="btn btn-primary" onclick="browseSearch()">🔍 Filter</button>
+  <div id="page-browse" class="page">
+    <div style="padding:2rem 2rem 1rem">
+      <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">📂 Browse Resources</h1>
+      <p style="color:var(--text2);font-size:.9rem">Filter by department, semester, year, and type to find exactly what
+        you need.</p>
     </div>
-  </div>
 
-  <div style="padding:0 2rem 4rem">
-    <div class="content-hdr">
-      <h2 id="browse-title">All Files</h2>
-      <div style="display:flex;gap:.5rem;align-items:center">
-        <span id="browse-count" style="font-size:.8rem;color:var(--text3)"></span>
-        <div class="tabs">
-          <button class="tab active" onclick="setBrowseSort('createdAt',this)">Newest</button>
-          <button class="tab" onclick="setBrowseSort('downloadCount',this)">Most Downloaded</button>
-          <button class="tab" onclick="setBrowseSort('likes',this)">Most Liked</button>
+    <!-- Advanced Filters -->
+    <div style="padding:0 2rem 1.5rem">
+      <div
+        style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem;align-items:end">
+        <div>
+          <label class="f-label">Type</label>
+          <select class="f-input" id="br-type">
+            <option value="">All Types</option>
+            <option value="notes">Notes</option>
+            <option value="pyq">PYQ Paper</option>
+            <option value="assignment">Assignment</option>
+            <option value="lab-manual">Lab Manual</option>
+            <option value="reference">Reference</option>
+          </select>
+        </div>
+        <div>
+          <label class="f-label">Department</label>
+          <select class="f-input" id="br-dept">
+            <option value="">All Depts</option>
+            <option>CSE</option>
+            <option>ECE</option>
+            <option>Mechanical</option>
+            <option>Civil</option>
+            <option>Electrical</option>
+            <option>IT</option>
+            <option>MBA</option>
+          </select>
+        </div>
+        <div>
+          <label class="f-label">Year</label>
+          <select class="f-input" id="br-year">
+            <option value="">All Years</option>
+            <option>Year 1</option>
+            <option>Year 2</option>
+            <option>Year 3</option>
+            <option>Year 4</option>
+          </select>
+        </div>
+        <div>
+          <label class="f-label">Semester</label>
+          <select class="f-input" id="br-sem">
+            <option value="">All Sems</option>
+            <option>Semester 1</option>
+            <option>Semester 2</option>
+            <option>Semester 3</option>
+            <option>Semester 4</option>
+            <option>Semester 5</option>
+            <option>Semester 6</option>
+            <option>Semester 7</option>
+            <option>Semester 8</option>
+          </select>
+        </div>
+        <div>
+          <label class="f-label">Search</label>
+          <input class="f-input" id="br-search" type="text" placeholder="Subject, topic...">
+        </div>
+        <button class="btn btn-primary" onclick="browseSearch()">🔍 Filter</button>
+      </div>
+    </div>
+
+    <div style="padding:0 2rem 4rem">
+      <div class="content-hdr">
+        <h2 id="browse-title">All Files</h2>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <span id="browse-count" style="font-size:.8rem;color:var(--text3)"></span>
+          <div class="tabs">
+            <button class="tab active" onclick="setBrowseSort('createdAt',this)">Newest</button>
+            <button class="tab" onclick="setBrowseSort('downloadCount',this)">Most Downloaded</button>
+            <button class="tab" onclick="setBrowseSort('likes',this)">Most Liked</button>
+          </div>
         </div>
       </div>
+      <div class="cards-grid" id="browse-cards"></div>
+      <div id="browse-loading" style="text-align:center;padding:2rem;color:var(--text3)">Loading...</div>
+
+      <!-- Pagination -->
+      <div id="browse-pagination" style="display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem"></div>
     </div>
-    <div class="cards-grid" id="browse-cards"></div>
-    <div id="browse-loading" style="text-align:center;padding:2rem;color:var(--text3)">Loading...</div>
-
-    <!-- Pagination -->
-    <div id="browse-pagination" style="display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem"></div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      PAGE: CHAT / DISCUSSION
      Real-time chat using Socket.IO
 ═══════════════════════════════════════════════ -->
-<div id="page-chat" class="page">
-  <div style="padding:2rem 2rem 1rem">
-    <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">💬 Discussion Rooms</h1>
-    <p style="color:var(--text2);font-size:.9rem">Ask doubts, share knowledge, discuss with classmates and faculty in real-time.</p>
-  </div>
-
-  <div class="chat-wrap">
-    <!-- Room list sidebar -->
-    <div>
-      <div class="panel" style="padding:.8rem">
-        <div class="panel-title">📢 Rooms</div>
-        <div class="room-list" id="room-list">
-          <!-- Rooms rendered by JS from API -->
-        </div>
-      </div>
-      <div class="panel" style="padding:.8rem">
-        <div class="panel-title">🟢 Online</div>
-        <div id="online-list" style="font-size:.8rem;color:var(--text3)">Join a room to see online users</div>
-      </div>
+  <div id="page-chat" class="page">
+    <div style="padding:2rem 2rem 1rem">
+      <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">💬 Discussion Rooms</h1>
+      <p style="color:var(--text2);font-size:.9rem">Ask doubts, share knowledge, discuss with classmates and faculty in
+        real-time.</p>
     </div>
 
-    <!-- Main chat window -->
-    <div class="chat-box">
-      <div class="chat-hdr">
-        <div class="chat-av" id="room-icon">🌐</div>
-        <div>
-          <div style="font-weight:600;font-size:.9rem" id="room-name">Select a room</div>
-          <div class="chat-online" id="room-online">● 0 online</div>
+    <div class="chat-wrap">
+      <!-- Room list sidebar -->
+      <div>
+        <div class="panel" style="padding:.8rem">
+          <div class="panel-title">📢 Rooms</div>
+          <div class="room-list" id="room-list">
+            <!-- Rooms rendered by JS from API -->
+          </div>
+        </div>
+        <div class="panel" style="padding:.8rem">
+          <div class="panel-title">🟢 Online</div>
+          <div id="online-list" style="font-size:.8rem;color:var(--text3)">Join a room to see online users</div>
         </div>
       </div>
 
-      <!-- Messages are appended here by JS -->
-      <div class="chat-msgs" id="chat-messages">
-        <div style="text-align:center;color:var(--text3);font-size:.85rem;padding:2rem">
-          👈 Select a room to start chatting
+      <!-- Main chat window -->
+      <div class="chat-box">
+        <div class="chat-hdr">
+          <div class="chat-av" id="room-icon">🌐</div>
+          <div>
+            <div style="font-weight:600;font-size:.9rem" id="room-name">Select a room</div>
+            <div class="chat-online" id="room-online">● 0 online</div>
+          </div>
+          <!-- Admin Chat Moderation -->
+          <button class="btn btn-danger btn-sm hidden" id="admin-clear-chat-btn" onclick="clearCurrentChatRoom()"
+            style="margin-left:auto">🧹 Clear Room (Admin)</button>
         </div>
-      </div>
 
-      <!-- Typing indicator -->
-      <div class="typing-indicator hidden" id="typing-indicator">Someone is typing...</div>
+        <!-- Messages are appended here by JS -->
+        <div class="chat-msgs" id="chat-messages">
+          <div style="text-align:center;color:var(--text3);font-size:.85rem;padding:2rem">
+            👈 Select a room to start chatting
+          </div>
+        </div>
 
-      <!-- Message input -->
-      <div class="chat-input-row">
-        <textarea class="chat-textarea" id="chat-input" rows="1"
-          placeholder="Type your message or doubt... (Enter to send, Shift+Enter for new line)"
-          onkeydown="handleChatKey(event)"
-          oninput="emitTyping()"></textarea>
-        <button class="send-btn" onclick="sendMessage()" title="Send">➤</button>
+        <!-- Typing indicator -->
+        <div class="typing-indicator hidden" id="typing-indicator">Someone is typing...</div>
+
+        <!-- Message input -->
+        <div class="chat-input-row">
+          <textarea class="chat-textarea" id="chat-input" rows="1"
+            placeholder="Type your message or doubt... (Enter to send, Shift+Enter for new line)"
+            onkeydown="handleChatKey(event)" oninput="emitTyping()"></textarea>
+          <button class="send-btn" onclick="sendMessage()" title="Send">➤</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════════
-     PAGE: PROFILE
-     User's own profile and their uploads
+  <!-- ═══════════════════════════════════════════════
+     PAGE: STUDENT PANEL
+     Dashboard for students (My Bookmarks / Profile)
 ═══════════════════════════════════════════════ -->
-<div id="page-profile" class="page">
-  <div style="padding:2rem 2rem 1rem">
-    <h1 style="font-size:1.8rem;font-weight:800">👤 My Profile</h1>
-  </div>
-  <div class="profile-grid">
-    <!-- Left: stats + edit form -->
-    <div>
-      <div class="panel" style="text-align:center;margin-bottom:1rem">
-        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto .8rem;border:3px solid rgba(79,142,247,.3)" id="profile-avatar">👤</div>
-        <div style="font-size:1.1rem;font-weight:700" id="profile-name">—</div>
-        <div style="font-size:.8rem;color:var(--text3);margin-top:.2rem" id="profile-role">—</div>
-        <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:1rem">
-          <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent)" id="p-points">0</div><div style="font-size:.72rem;color:var(--text3)">Points</div></div>
-          <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent3)" id="p-uploads">0</div><div style="font-size:.72rem;color:var(--text3)">Uploads</div></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-title">Edit Profile</div>
-        <div class="form-group">
-          <label>Full Name</label>
-          <input class="f-input" id="edit-name" type="text">
-        </div>
-        <div class="form-group">
-          <label>Department</label>
-          <select class="f-input" id="edit-dept">
-            <option>CSE</option><option>ECE</option><option>Mechanical</option>
-            <option>Civil</option><option>Electrical</option><option>IT</option><option>MBA</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-group" style="margin:0">
-            <label>Year</label>
-            <select class="f-input" id="edit-year">
-              <option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label>Semester</label>
-            <select class="f-input" id="edit-sem">
-              <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
-              <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
-              <option>Semester 7</option><option>Semester 8</option>
-            </select>
+  <div id="page-student" class="page">
+    <div style="padding:2rem 2rem 1rem">
+      <h1 style="font-size:1.8rem;font-weight:800">🎓 Student Panel</h1>
+    </div>
+    <div class="profile-grid">
+      <!-- Left: stats + edit form -->
+      <div>
+        <div class="panel" style="text-align:center;margin-bottom:1rem">
+          <div
+            style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto .8rem;border:3px solid rgba(79,142,247,.3)"
+            id="profile-avatar">👤</div>
+          <div style="font-size:1.1rem;font-weight:700" id="profile-name">—</div>
+          <div style="font-size:.8rem;color:var(--text3);margin-top:.2rem" id="profile-role">—</div>
+          <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:1rem">
+            <div>
+              <div style="font-size:1.3rem;font-weight:800;color:var(--accent)" id="p-points">0</div>
+              <div style="font-size:.72rem;color:var(--text3)">Points</div>
+            </div>
+            <div>
+              <div style="font-size:1.3rem;font-weight:800;color:var(--accent3)" id="p-uploads">0</div>
+              <div style="font-size:.72rem;color:var(--text3)">Uploads</div>
+            </div>
           </div>
         </div>
-        <button class="btn btn-primary btn-full mt1" onclick="saveProfile()">💾 Save Changes</button>
-      </div>
-    </div>
 
-    <!-- Right: my uploads -->
-    <div>
-      <div class="content-hdr">
-        <h2>My Uploads</h2>
-        <button class="btn btn-primary btn-sm" onclick="openUpload()">⬆ Upload New</button>
+        <div class="panel">
+          <div class="panel-title">Edit Profile</div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input class="f-input" id="edit-name" type="text">
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select class="f-input" id="edit-dept">
+              <option>CSE</option>
+              <option>ECE</option>
+              <option>Mechanical</option>
+              <option>Civil</option>
+              <option>Electrical</option>
+              <option>IT</option>
+              <option>MBA</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="margin:0">
+              <label>Year</label>
+              <select class="f-input" id="edit-year">
+                <option>Year 1</option>
+                <option>Year 2</option>
+                <option>Year 3</option>
+                <option>Year 4</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Semester</label>
+              <select class="f-input" id="edit-sem">
+                <option>Semester 1</option>
+                <option>Semester 2</option>
+                <option>Semester 3</option>
+                <option>Semester 4</option>
+                <option>Semester 5</option>
+                <option>Semester 6</option>
+                <option>Semester 7</option>
+                <option>Semester 8</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full mt1" onclick="saveProfile()">💾 Save Changes</button>
+        </div>
       </div>
-      <div class="cards-grid" id="my-uploads"></div>
-      <div id="my-uploads-empty" style="text-align:center;padding:2rem;color:var(--text3)" class="hidden">
-        You haven't uploaded anything yet. <a href="#" onclick="openUpload()" style="color:var(--accent)">Upload your first file!</a>
+
+      <!-- Right: my uploads -->
+      <div>
+        <div class="content-hdr">
+          <h2>My Uploads & Contributions</h2>
+          <button class="btn btn-primary btn-sm" onclick="openUpload()">⬆ Upload Notes</button>
+        </div>
+        <div class="cards-grid" id="student-uploads"></div>
+        <div id="student-uploads-empty" style="text-align:center;padding:2rem;color:var(--text3)" class="hidden">
+          You haven't uploaded anything yet. <a href="#" onclick="openUpload()" style="color:var(--accent)">Upload your
+            first file!</a>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- ═══════════════════════════════════════════════
+     PAGE: FACULTY PANEL
+     Dashboard for faculty
+═══════════════════════════════════════════════ -->
+  <div id="page-faculty" class="page">
+    <div style="padding:2rem 2rem 1rem">
+      <h1 style="font-size:1.8rem;font-weight:800">👨‍🏫 Faculty Panel</h1>
+    </div>
+    <div class="profile-grid">
+      <!-- Left: stats + edit form -->
+      <div>
+        <div class="panel" style="text-align:center;margin-bottom:1rem">
+          <div
+            style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto .8rem;border:3px solid rgba(79,142,247,.3)">
+            👨‍🏫</div>
+          <div style="font-size:1.1rem;font-weight:700" id="faculty-name">—</div>
+          <div style="font-size:.8rem;color:var(--text3);margin-top:.2rem" id="faculty-role">—</div>
+          <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:1rem">
+            <div>
+              <div style="font-size:1.3rem;font-weight:800;color:var(--accent3)" id="f-uploads">0</div>
+              <div style="font-size:.72rem;color:var(--text3)">Uploads</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Faculty materials -->
+      <div>
+        <div class="content-hdr">
+          <h2>Manage My Study Materials</h2>
+          <button class="btn btn-primary btn-sm" onclick="openUpload()">⬆ Upload New Resource</button>
+        </div>
+        <div class="cards-grid" id="faculty-uploads"></div>
+        <div id="faculty-uploads-empty" style="text-align:center;padding:2rem;color:var(--text3)" class="hidden">
+          No materials uploaded yet.
+        </div>
+      </div>
+    </div>
+  </div>
 
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      PAGE: ADMIN PANEL
      Only visible if user.role === 'admin'
 ═══════════════════════════════════════════════ -->
-<div id="page-admin" class="page">
-  <div style="padding:2rem 2rem 1rem">
-    <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">⚙️ Admin Panel</h1>
-    <p style="color:var(--text2);font-size:.9rem">Manage users, files, and monitor platform activity.</p>
+  <div id="page-admin" class="page">
+    <div style="padding:2rem 2rem 1rem">
+      <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">⚙️ Admin Control Center</h1>
+      <p style="color:var(--text2);font-size:.9rem">Global oversight, user governance, and platform management.</p>
+    </div>
+
+    <!-- Main Admin Layout with Sidebar -->
+    <div
+      style="display:grid;grid-template-columns:220px 1fr;gap:1.5rem;padding:0 2rem 4rem;max-width:1400px;margin:0 auto">
+
+      <!-- Admin Sidebar -->
+      <div
+        style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;height:fit-content">
+        <div class="sb-item active" onclick="adminTab('overview',this)">📊 Overview</div>
+        <div class="sb-item" onclick="adminTab('users',this)">👥 Manage Users</div>
+        <div class="sb-item" onclick="adminTab('files',this)">📄 Manage Files</div>
+        <div class="sb-item" onclick="adminTab('departments',this)">🏢 Departments</div>
+        <div class="sb-item" onclick="adminTab('activity',this)">⚡ Activity Log</div>
+      </div>
+
+      <!-- Admin Content Area -->
+      <div>
+
+        <!-- Overview Tab -->
+        <div id="admin-overview-section">
+          <div class="admin-grid" id="admin-stats">
+            <div class="stat-card" style="background:rgba(79,142,247,.05);border-color:var(--accent)">
+              <div class="big" style="color:var(--accent)" id="a-users">—</div>
+              <div class="label">Total Users</div>
+            </div>
+            <div class="stat-card" style="background:rgba(6,214,160,.05);border-color:var(--accent3)">
+              <div class="big" style="color:var(--accent3)" id="a-files">—</div>
+              <div class="label">Total Files</div>
+            </div>
+            <div class="stat-card" style="background:rgba(181,23,158,.05);border-color:var(--accent2)">
+              <div class="big" style="color:var(--accent2)" id="a-msgs">—</div>
+              <div class="label">Messages</div>
+            </div>
+            <div class="stat-card" style="background:rgba(247,37,133,.05);border-color:var(--accent4)">
+              <div class="big" style="color:var(--accent4)" id="a-pending">—</div>
+              <div class="label">Pending Files</div>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:1.5rem">
+            <h3 style="margin-bottom:1rem">Quick Actions</h3>
+            <button class="btn btn-primary btn-sm"
+              onclick="adminTab('departments', document.querySelectorAll('#page-admin .sb-item')[3])">+ Add New
+              Department</button>
+          </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="admin-users-section" class="hidden">
+          <div class="panel">
+            <table class="data-table" id="admin-users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Dept</th>
+                  <th>Points</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body">
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:2rem">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Files Tab -->
+        <div id="admin-files-section" class="hidden">
+          <div class="panel">
+            <table class="data-table" id="admin-files-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Dept</th>
+                  <th>Uploaded By</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-files-body">
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:2rem">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Departments Tab -->
+        <div id="admin-departments-section" class="hidden">
+          <div class="panel" style="margin-bottom:1.5rem">
+            <h3 style="margin-bottom:1rem">Add New Department</h3>
+            <div style="display:flex;gap:1rem">
+              <input type="text" id="new-dept-name" class="f-input"
+                placeholder="Department Name (e.g. Computer Science)" style="flex:2">
+              <input type="text" id="new-dept-code" class="f-input" placeholder="Code (e.g. CSE)" style="flex:1">
+              <button class="btn btn-primary" onclick="addDepartment()">Add</button>
+            </div>
+          </div>
+          <div class="panel">
+            <table class="data-table" id="admin-dept-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Name</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-dept-body">
+                <tr>
+                  <td colspan="3" style="text-align:center;padding:2rem">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Activity Log Tab -->
+        <div id="admin-activity-section" class="hidden">
+          <div class="panel">
+            <h3 style="margin-bottom:1rem">System Activity Log</h3>
+            <div id="admin-activity-list"
+              style="max-height:600px;overflow-y:auto;padding-right:.5rem;display:flex;flex-direction:column;gap:10px;">
+              <div style="text-align:center;color:var(--text3);padding:2rem">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
-  <div style="padding:0 2rem 4rem">
-    <!-- Stats row -->
-    <div class="admin-grid" id="admin-stats">
-      <div class="stat-card"><div class="big" style="color:var(--accent)" id="a-users">—</div><div class="label">Total Users</div></div>
-      <div class="stat-card"><div class="big" style="color:var(--accent3)" id="a-files">—</div><div class="label">Total Files</div></div>
-      <div class="stat-card"><div class="big" style="color:var(--accent2)" id="a-msgs">—</div><div class="label">Messages</div></div>
-      <div class="stat-card"><div class="big" style="color:var(--accent4)" id="a-pending">—</div><div class="label">Pending Files</div></div>
-      <div class="stat-card"><div class="big" style="color:#ff9500"      id="a-banned">—</div><div class="label">Banned Users</div></div>
-    </div>
 
-    <!-- Admin tabs -->
-    <div class="tabs" style="margin-bottom:1.2rem">
-      <button class="tab active" onclick="adminTab('users',this)">Users</button>
-      <button class="tab" onclick="adminTab('files',this)">Files</button>
-    </div>
-
-    <!-- Users table -->
-    <div id="admin-users-section">
-      <table class="data-table" id="admin-users-table">
-        <thead>
-          <tr>
-            <th>Name</th><th>Email</th><th>Role</th>
-            <th>Department</th><th>Points</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="admin-users-body">
-          <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Files table -->
-    <div id="admin-files-section" style="display:none">
-      <table class="data-table" id="admin-files-table">
-        <thead>
-          <tr>
-            <th>Title</th><th>Type</th><th>Dept</th>
-            <th>Uploaded By</th><th>Status</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="admin-files-body">
-          <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      UPLOAD MODAL
      Form to upload a new file
 ═══════════════════════════════════════════════ -->
-<div class="overlay" id="upload-overlay">
-  <div class="modal">
-    <div class="modal-hdr">
-      <h2>⬆ Upload Resource</h2>
-      <button class="close-btn" onclick="closeUpload()">✕</button>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Resource Type</label>
-        <select class="f-input" id="u-type">
-          <option value="notes">📝 Notes</option>
-          <option value="pyq">📋 PYQ Paper</option>
-          <option value="assignment">📌 Assignment</option>
-          <option value="lab-manual">🧪 Lab Manual</option>
-          <option value="reference">📖 Reference Book</option>
-        </select>
+  <div class="overlay" id="upload-overlay">
+    <div class="modal">
+      <div class="modal-hdr">
+        <h2>⬆ Upload Resource</h2>
+        <button class="close-btn" onclick="closeUpload()">✕</button>
       </div>
-      <div class="form-group">
-        <label>Department</label>
-        <select class="f-input" id="u-dept">
-          <option>CSE</option><option>ECE</option><option>Mechanical</option>
-          <option>Civil</option><option>Electrical</option><option>IT</option><option>MBA</option>
-        </select>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Resource Type</label>
+          <select class="f-input" id="u-type">
+            <option value="notes">📝 Notes</option>
+            <option value="pyq">📋 PYQ Paper</option>
+            <option value="assignment">📌 Assignment</option>
+            <option value="lab-manual">🧪 Lab Manual</option>
+            <option value="reference">📖 Reference Book</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <select class="f-input" id="u-dept">
+            <option>CSE</option>
+            <option>ECE</option>
+            <option>Mechanical</option>
+            <option>Civil</option>
+            <option>Electrical</option>
+            <option>IT</option>
+            <option>MBA</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Year</label>
-        <select class="f-input" id="u-year">
-          <option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Year</label>
+          <select class="f-input" id="u-year">
+            <option>Year 1</option>
+            <option>Year 2</option>
+            <option>Year 3</option>
+            <option>Year 4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Semester</label>
+          <select class="f-input" id="u-sem">
+            <option>Semester 1</option>
+            <option>Semester 2</option>
+            <option>Semester 3</option>
+            <option>Semester 4</option>
+            <option>Semester 5</option>
+            <option>Semester 6</option>
+            <option>Semester 7</option>
+            <option>Semester 8</option>
+          </select>
+        </div>
       </div>
+
       <div class="form-group">
-        <label>Semester</label>
-        <select class="f-input" id="u-sem">
-          <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
-          <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
-          <option>Semester 7</option><option>Semester 8</option>
-        </select>
+        <label>Subject Name</label>
+        <input class="f-input" id="u-subject" type="text" placeholder="e.g. Data Structures & Algorithms">
       </div>
-    </div>
 
-    <div class="form-group">
-      <label>Subject Name</label>
-      <input class="f-input" id="u-subject" type="text" placeholder="e.g. Data Structures & Algorithms">
-    </div>
+      <div class="form-group">
+        <label>Title</label>
+        <input class="f-input" id="u-title" type="text" placeholder="e.g. DSA Unit 3 — Trees & Graphs">
+      </div>
 
-    <div class="form-group">
-      <label>Title</label>
-      <input class="f-input" id="u-title" type="text" placeholder="e.g. DSA Unit 3 — Trees & Graphs">
-    </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea class="f-input" id="u-desc" placeholder="Brief description of the content..."></textarea>
+      </div>
 
-    <div class="form-group">
-      <label>Description (optional)</label>
-      <textarea class="f-input" id="u-desc" placeholder="Brief description of the content..."></textarea>
-    </div>
+      <!-- File drop zone — clicking opens file picker, drag & drop also works -->
+      <div class="drop-zone" id="drop-zone" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+        ondragleave="this.style.borderColor=''" ondrop="handleDrop(event)"
+        onclick="document.getElementById('file-picker').click()">
+        <div class="drop-ico">📂</div>
+        <div class="drop-title" id="drop-title">Drop file here or click to browse</div>
+        <div class="drop-sub">PDF, DOCX, PPTX, JPG, PNG — Max 50 MB</div>
+        <!-- Hidden file input -->
+        <input type="file" id="file-picker" style="display:none" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
+          onchange="handleFileSelect(this)">
+      </div>
 
-    <!-- File drop zone — clicking opens file picker, drag & drop also works -->
-    <div class="drop-zone" id="drop-zone"
-      ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
-      ondragleave="this.style.borderColor=''"
-      ondrop="handleDrop(event)"
-      onclick="document.getElementById('file-picker').click()">
-      <div class="drop-ico">📂</div>
-      <div class="drop-title" id="drop-title">Drop file here or click to browse</div>
-      <div class="drop-sub">PDF, DOCX, PPTX, JPG, PNG — Max 50 MB</div>
-      <!-- Hidden file input -->
-      <input type="file" id="file-picker" style="display:none"
-        accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.zip"
-        onchange="handleFileSelect(this)">
-    </div>
-
-    <div class="form-btns">
-      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeUpload()">Cancel</button>
-      <button class="btn btn-primary" style="flex:2;justify-content:center" id="upload-submit-btn" onclick="submitUpload()">⬆ Upload</button>
+      <div class="form-btns">
+        <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeUpload()">Cancel</button>
+        <button class="btn btn-primary" style="flex:2;justify-content:center" id="upload-submit-btn"
+          onclick="submitUpload()">⬆ Upload</button>
+      </div>
     </div>
   </div>
-</div>
 
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      AUTH MODAL (Login / Register)
 ═══════════════════════════════════════════════ -->
-<div class="overlay" id="auth-overlay">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-hdr">
-      <h2 id="auth-title">Sign In</h2>
-      <button class="close-btn" onclick="closeAuth()">✕</button>
-    </div>
-
-    <!-- Tabs to toggle between Login and Register -->
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tab-login"    onclick="switchAuthTab('login')">Sign In</div>
-      <div class="auth-tab"        id="tab-register" onclick="switchAuthTab('register')">Sign Up</div>
-    </div>
-
-    <!-- LOGIN FORM -->
-    <div id="login-form">
-      <div class="form-group">
-        <label>Email Address</label>
-        <input class="f-input" id="l-email" type="email" placeholder="your@email.com">
+  <div class="overlay" id="auth-overlay">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-hdr">
+        <h2 id="auth-title">Sign In</h2>
+        <button class="close-btn" onclick="closeAuth()">✕</button>
       </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input class="f-input" id="l-password" type="password" placeholder="Enter password">
-      </div>
-      <button class="btn btn-primary btn-full" id="login-btn-submit" onclick="doLogin()">Sign In</button>
-    </div>
 
-    <!-- REGISTER FORM -->
-    <div id="register-form" style="display:none">
-      <div class="form-row">
+      <!-- Tabs to toggle between Login and Register -->
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Sign Up</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form">
         <div class="form-group">
-          <label>Full Name</label>
-          <input class="f-input" id="r-name" type="text" placeholder="Your name">
+          <label>Email Address</label>
+          <input class="f-input" id="l-email" type="email" placeholder="your@email.com">
         </div>
         <div class="form-group">
-          <label>Role</label>
-          <select class="f-input" id="r-role">
-            <option value="student">Student</option>
-            <option value="faculty">Faculty</option>
+          <label>Password</label>
+          <input class="f-input" id="l-password" type="password" placeholder="Enter password">
+        </div>
+        <button class="btn btn-primary btn-full" id="login-btn-submit" onclick="doLogin()">Sign In</button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="register-form" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input class="f-input" id="r-name" type="text" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select class="f-input" id="r-role">
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input class="f-input" id="r-email" type="email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label>Password (min 6 characters)</label>
+          <input class="f-input" id="r-password" type="password" placeholder="Choose a password">
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin:0">
+            <label>Department</label>
+            <select class="f-input" id="r-dept">
+              <option>CSE</option>
+              <option>ECE</option>
+              <option>Mechanical</option>
+              <option>Civil</option>
+              <option>Electrical</option>
+              <option>IT</option>
+              <option>MBA</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Year</label>
+            <select class="f-input" id="r-year">
+              <option>Year 1</option>
+              <option>Year 2</option>
+              <option>Year 3</option>
+              <option>Year 4</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group mt1">
+          <label>Semester</label>
+          <select class="f-input" id="r-sem">
+            <option>Semester 1</option>
+            <option>Semester 2</option>
+            <option>Semester 3</option>
+            <option>Semester 4</option>
+            <option>Semester 5</option>
+            <option>Semester 6</option>
+            <option>Semester 7</option>
+            <option>Semester 8</option>
           </select>
         </div>
+        <button class="btn btn-primary btn-full" id="register-btn-submit" onclick="doRegister()">Create Account</button>
       </div>
-      <div class="form-group">
-        <label>Email Address</label>
-        <input class="f-input" id="r-email" type="email" placeholder="your@email.com">
-      </div>
-      <div class="form-group">
-        <label>Password (min 6 characters)</label>
-        <input class="f-input" id="r-password" type="password" placeholder="Choose a password">
-      </div>
-      <div class="form-row">
-        <div class="form-group" style="margin:0">
-          <label>Department</label>
-          <select class="f-input" id="r-dept">
-            <option>CSE</option><option>ECE</option><option>Mechanical</option>
-            <option>Civil</option><option>Electrical</option><option>IT</option><option>MBA</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin:0">
-          <label>Year</label>
-          <select class="f-input" id="r-year">
-            <option>Year 1</option><option>Year 2</option><option>Year 3</option><option>Year 4</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group mt1">
-        <label>Semester</label>
-        <select class="f-input" id="r-sem">
-          <option>Semester 1</option><option>Semester 2</option><option>Semester 3</option>
-          <option>Semester 4</option><option>Semester 5</option><option>Semester 6</option>
-          <option>Semester 7</option><option>Semester 8</option>
-        </select>
-      </div>
-      <button class="btn btn-primary btn-full" id="register-btn-submit" onclick="doRegister()">Create Account</button>
     </div>
   </div>
-</div>
 
-<!-- Toast notification -->
-<div class="toast" id="toast"></div>
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════════
      JAVASCRIPT — All frontend logic below
 ═══════════════════════════════════════════════ -->
-<script>
-// ════════════════════════════════════════════════════════════
-// GLOBAL STATE — variables shared across all functions
-// ════════════════════════════════════════════════════════════
+  <script>
+    // ════════════════════════════════════════════════════════════
+    // GLOBAL STATE — variables shared across all functions
+    // ════════════════════════════════════════════════════════════
 
-// API base URL — all fetch calls use this prefix
-const API = 'http://localhost:5000/api';
+    // API base URL — all fetch calls use this prefix
+    const API = 'http://localhost:5000/api';
 
-// Current logged-in user (null if not logged in)
-let currentUser = null;
+    // Current logged-in user (null if not logged in)
+    let currentUser = null;
 
-// JWT token stored in localStorage so the user stays logged in on refresh
-let authToken = localStorage.getItem('eduvault_token');
+    // JWT token stored in localStorage so the user stays logged in on refresh
+    let authToken = localStorage.getItem('eduvault_token');
 
-// Selected file for upload
-let selectedFile = null;
+    // Selected file for upload
+    let selectedFile = null;
 
-// Socket.IO connection instance
-let socket = null;
+    // Socket.IO connection instance
+    let socket = null;
 
-// Current active chat room
-let currentRoom = null;
+    // Current active chat room
+    let currentRoom = null;
 
-// Sort preferences
-let homeSort   = 'createdAt';
-let browseSort = 'createdAt';
+    // Sort preferences
+    let homeSort = 'createdAt';
+    let browseSort = 'createdAt';
 
-// Browse pagination
-let browsePage = 1;
+    // Browse pagination
+    let browsePage = 1;
 
-// Typing timeout for "user is typing" debounce
-let typingTimeout = null;
-
-
-// ════════════════════════════════════════════════════════════
-// INITIALIZATION
-// Runs when the page first loads
-// ════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  // If we have a saved token, try to restore the user session
-  if (authToken) restoreSession();
-
-  // Load home page data
-  loadHomeCards();
-  loadAdminStats(); // preload in background
-
-  // Initialize Socket.IO connection
-  initSocket();
-
-  // Load chat rooms
-  loadChatRooms();
-});
+    // Typing timeout for "user is typing" debounce
+    let typingTimeout = null;
 
 
-// ════════════════════════════════════════════════════════════
-// PAGE NAVIGATION
-// Shows one page at a time by toggling .active class
-// ════════════════════════════════════════════════════════════
-function showPage(page) {
-  // Hide all pages
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  // Show the selected page
-  document.getElementById(`page-${page}`)?.classList.add('active');
+    // ════════════════════════════════════════════════════════════
+    // INITIALIZATION
+    // Runs when the page first loads
+    // ════════════════════════════════════════════════════════════
+    window.addEventListener('DOMContentLoaded', () => {
+      // Load departments for all dropdowns globally
+      loadDepartments();
 
-  // Update nav link active state
-  document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
-  document.getElementById(`nav-${page}`)?.classList.add('active');
+      // If we have a saved token, try to restore the user session
+      if (authToken) restoreSession();
 
-  // Load data for specific pages when they are opened
-  if (page === 'browse') loadBrowseCards();
-  if (page === 'profile' && currentUser) loadProfilePage();
-  if (page === 'admin' && currentUser?.role === 'admin') {
-    loadAdminStats();
-    loadAdminUsers();
-  }
-}
+      // Load home page data
+      loadHomeCards();
+      loadAdminStats(); // preload in background
 
+      // Initialize Socket.IO connection
+      initSocket();
 
-// ════════════════════════════════════════════════════════════
-// AUTH — SESSION RESTORE
-// On page load, if a token exists, verify it and restore user
-// ════════════════════════════════════════════════════════════
-async function restoreSession() {
-  try {
-    const res  = await apiGet('/auth/me');
-    if (res.user) setUser(res.user);
-  } catch (e) {
-    // Token invalid/expired — clear it
-    localStorage.removeItem('eduvault_token');
-    authToken = null;
-  }
-}
-
-// ── Set the logged-in user state and update UI accordingly ──
-function setUser(user) {
-  currentUser = user;
-
-  // Show/hide nav buttons based on login state
-  document.getElementById('login-btn').style.display    = 'none';
-  document.getElementById('register-btn').style.display = 'none';
-  document.getElementById('logout-btn').style.display   = 'inline-flex';
-  document.getElementById('upload-btn').style.display   = 'inline-flex';
-  document.getElementById('nav-profile').classList.remove('hidden');
-
-  // Show admin nav link only for admins
-  if (user.role === 'admin') {
-    document.getElementById('nav-admin').classList.remove('hidden');
-  }
-
-  // Authenticate the Socket.IO connection with this user's token
-  if (socket && authToken) socket.emit('authenticate', authToken);
-}
-
-// ── Log out ──
-function logout() {
-  currentUser = null;
-  authToken   = null;
-  localStorage.removeItem('eduvault_token');
-
-  document.getElementById('login-btn').style.display    = 'inline-flex';
-  document.getElementById('register-btn').style.display = 'inline-flex';
-  document.getElementById('logout-btn').style.display   = 'none';
-  document.getElementById('upload-btn').style.display   = 'none';
-  document.getElementById('nav-profile').classList.add('hidden');
-  document.getElementById('nav-admin').classList.add('hidden');
-
-  showPage('home');
-  showToast('Logged out successfully');
-}
+      // Load chat rooms
+      loadChatRooms();
+    });
 
 
-// ════════════════════════════════════════════════════════════
-// AUTH MODAL — Login & Register
-// ════════════════════════════════════════════════════════════
-function openAuth(tab = 'login') {
-  document.getElementById('auth-overlay').classList.add('open');
-  switchAuthTab(tab);
-}
+    // ════════════════════════════════════════════════════════════
+    // PAGE NAVIGATION
+    // Shows one page at a time by toggling .active class
+    // ════════════════════════════════════════════════════════════
+    function showPage(page) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      // Show the selected page
+      document.getElementById(`page-${page}`)?.classList.add('active');
 
-function closeAuth() {
-  document.getElementById('auth-overlay').classList.remove('open');
-}
+      // Update nav link active state
+      document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+      document.getElementById(`nav-${page}`)?.classList.add('active');
 
-function switchAuthTab(tab) {
-  document.getElementById('login-form').style.display    = tab === 'login'    ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
-  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-}
-
-// ── Handle Login form submit ──
-async function doLogin() {
-  const email    = document.getElementById('l-email').value.trim();
-  const password = document.getElementById('l-password').value;
-
-  if (!email || !password) return showToast('Please fill in all fields', 'error');
-
-  setBtnLoading('login-btn-submit', true);
-  try {
-    const res = await apiPost('/auth/login', { email, password });
-
-    // Save token for future requests
-    authToken = res.token;
-    localStorage.setItem('eduvault_token', authToken);
-
-    setUser(res.user);
-    closeAuth();
-    showToast(`Welcome back, ${res.user.name}! 👋`, 'success');
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-  setBtnLoading('login-btn-submit', false, 'Sign In');
-}
-
-// ── Handle Register form submit ──
-async function doRegister() {
-  const body = {
-    name:       document.getElementById('r-name').value.trim(),
-    email:      document.getElementById('r-email').value.trim(),
-    password:   document.getElementById('r-password').value,
-    role:       document.getElementById('r-role').value,
-    department: document.getElementById('r-dept').value,
-    year:       document.getElementById('r-year').value,
-    semester:   document.getElementById('r-sem').value
-  };
-
-  if (!body.name || !body.email || !body.password) return showToast('Please fill in all fields', 'error');
-
-  setBtnLoading('register-btn-submit', true);
-  try {
-    const res = await apiPost('/auth/register', body);
-
-    authToken = res.token;
-    localStorage.setItem('eduvault_token', authToken);
-
-    setUser(res.user);
-    closeAuth();
-    showToast(`🎉 Welcome to EduVault, ${res.user.name}!`, 'success');
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-  setBtnLoading('register-btn-submit', false, 'Create Account');
-}
+      // Load data for specific pages when they are opened
+      if (page === 'browse') loadBrowseCards();
+      if (page === 'student' && currentUser) {
+        loadProfilePage(); // Load the student panel
+      }
+      if (page === 'faculty' && currentUser) {
+        // Specifically load faculty profile data
+        document.getElementById('faculty-name').textContent = currentUser.name;
+        document.getElementById('faculty-role').textContent = `${currentUser.role} · ${currentUser.department}`;
+        loadUserUploads('faculty-uploads', 'faculty-uploads-empty', 'f-uploads');
+      }
+      if (page === 'admin' && currentUser?.role === 'admin') {
+        loadAdminStats();
+        loadAdminUsers();
+      }
+    }
 
 
-// ════════════════════════════════════════════════════════════
-// FILE CARDS — RENDER
-// Takes an array of file objects and renders them as cards
-// ════════════════════════════════════════════════════════════
-function renderCards(files, containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
 
-  if (!files || files.length === 0) {
-    container.innerHTML = '<div class="no-files">No files found. Be the first to upload! 📤</div>';
-    return;
-  }
+    // ════════════════════════════════════════════════════════════
+    // AUTH — SESSION RESTORE
+    // On page load, if a token exists, verify it and restore user
+    // ════════════════════════════════════════════════════════════
+    async function restoreSession() {
+      try {
+        const res = await apiGet('/auth/me');
+        if (res.user) setUser(res.user);
+      } catch (e) {
+        // Token invalid/expired — clear it
+        localStorage.removeItem('eduvault_token');
+        authToken = null;
+      }
+    }
 
-  // Map each file to an HTML card string, then join and set as innerHTML
-  container.innerHTML = files.map((f, i) => {
-    const icons = { notes:'📄', pyq:'📋', assignment:'📌', 'lab-manual':'🧪', reference:'📖' };
-    const typeLabel = f.type === 'pyq' ? 'PYQ' : f.type;
-    const size  = f.fileSize ? (f.fileSize / (1024*1024)).toFixed(1) + ' MB' : '—';
-    const uploader = f.uploadedBy;
+    // ── Set the logged-in user state and update UI accordingly ──
+    function setUser(user) {
+      currentUser = user;
 
-    return `
+      // Show/hide nav buttons based on login state
+      document.getElementById('login-btn').style.display = 'none';
+      document.getElementById('register-btn').style.display = 'none';
+      document.getElementById('logout-btn').style.display = 'inline-flex';
+      document.getElementById('upload-btn').style.display = 'inline-flex';
+
+      // Show correct panel in nav based on role
+      if (user.role === 'student') {
+        document.getElementById('nav-student').classList.remove('hidden');
+      } else if (user.role === 'faculty') {
+        document.getElementById('nav-faculty').classList.remove('hidden');
+      }
+
+      // Show admin nav link only for admins, also show chat controls
+      if (user.role === 'admin') {
+        document.getElementById('nav-admin').classList.remove('hidden');
+        document.getElementById('admin-clear-chat-btn')?.classList.remove('hidden');
+      }
+
+      // Authenticate the Socket.IO connection with this user's token
+      if (socket && authToken) socket.emit('authenticate', authToken);
+    }
+
+    // ── Log out ──
+    function logout() {
+      currentUser = null;
+      authToken = null;
+      localStorage.removeItem('eduvault_token');
+
+      document.getElementById('login-btn').style.display = 'inline-flex';
+      document.getElementById('register-btn').style.display = 'inline-flex';
+      document.getElementById('logout-btn').style.display = 'none';
+      document.getElementById('upload-btn').style.display = 'none';
+      document.getElementById('nav-student').classList.add('hidden');
+      document.getElementById('nav-faculty').classList.add('hidden');
+      document.getElementById('nav-admin').classList.add('hidden');
+      document.getElementById('admin-clear-chat-btn')?.classList.add('hidden');
+
+      showPage('home');
+      showToast('Logged out successfully');
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // AUTH MODAL — Login & Register
+    // ════════════════════════════════════════════════════════════
+    function openAuth(tab = 'login') {
+      document.getElementById('auth-overlay').classList.add('open');
+      switchAuthTab(tab);
+    }
+
+    function closeAuth() {
+      document.getElementById('auth-overlay').classList.remove('open');
+    }
+
+    function switchAuthTab(tab) {
+      document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    }
+
+    // ── Handle Login form submit ──
+    async function doLogin() {
+      const email = document.getElementById('l-email').value.trim();
+      const password = document.getElementById('l-password').value;
+
+      if (!email || !password) return showToast('Please fill in all fields', 'error');
+
+      setBtnLoading('login-btn-submit', true);
+      try {
+        const res = await apiPost('/auth/login', { email, password });
+
+        // Save token for future requests
+        authToken = res.token;
+        localStorage.setItem('eduvault_token', authToken);
+
+        setUser(res.user);
+        closeAuth();
+        showToast(`Welcome back, ${res.user.name}! 👋`, 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      setBtnLoading('login-btn-submit', false, 'Sign In');
+    }
+
+    // ── Handle Register form submit ──
+    async function doRegister() {
+      const body = {
+        name: document.getElementById('r-name').value.trim(),
+        email: document.getElementById('r-email').value.trim(),
+        password: document.getElementById('r-password').value,
+        role: document.getElementById('r-role').value,
+        department: document.getElementById('r-dept').value,
+        year: document.getElementById('r-year').value,
+        semester: document.getElementById('r-sem').value
+      };
+
+      if (!body.name || !body.email || !body.password) return showToast('Please fill in all fields', 'error');
+
+      setBtnLoading('register-btn-submit', true);
+      try {
+        const res = await apiPost('/auth/register', body);
+
+        authToken = res.token;
+        localStorage.setItem('eduvault_token', authToken);
+
+        setUser(res.user);
+        closeAuth();
+        showToast(`🎉 Welcome to EduVault, ${res.user.name}!`, 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      setBtnLoading('register-btn-submit', false, 'Create Account');
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // FILE CARDS — RENDER
+    // Takes an array of file objects and renders them as cards
+    // ════════════════════════════════════════════════════════════
+    function renderCards(files, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (!files || files.length === 0) {
+        container.innerHTML = '<div class="no-files">No files found. Be the first to upload! 📤</div>';
+        return;
+      }
+
+      // Map each file to an HTML card string, then join and set as innerHTML
+      container.innerHTML = files.map((f, i) => {
+        const icons = { notes: '📄', pyq: '📋', assignment: '📌', 'lab-manual': '🧪', reference: '📖' };
+        const typeLabel = f.type === 'pyq' ? 'PYQ' : f.type;
+        const size = f.fileSize ? (f.fileSize / (1024 * 1024)).toFixed(1) + ' MB' : '—';
+        const uploader = f.uploadedBy;
+
+        return `
       <div class="file-card ${f.type}" style="animation-delay:${i * 0.05}s">
         <div class="card-top">
           <div class="file-ico" style="background:rgba(79,142,247,.12)">${icons[f.type] || '📄'}</div>
@@ -1070,302 +2295,314 @@ function renderCards(files, containerId) {
             : ''}
         </div>
       </div>`;
-  }).join('');
-}
-
-
-// ════════════════════════════════════════════════════════════
-// FILE ACTIONS — Download, Like, Delete
-// ════════════════════════════════════════════════════════════
-
-// ── Download: opens the download API endpoint in new tab ──
-function downloadFile(id, name) {
-  window.open(`${API}/files/download/${id}`, '_blank');
-  showToast(`⬇ Downloading ${name}...`);
-}
-
-// ── Preview: open file in new tab using the static files server ──
-async function previewFile(id) {
-  try {
-    const res  = await apiGet(`/files/${id}`);
-    const path = `http://localhost:5000/${res.file.filePath}`;
-    window.open(path, '_blank');
-  } catch (e) {
-    showToast('Could not open file preview', 'error');
-  }
-}
-
-// ── Like/Unlike a file ──
-async function likeFile(id, btn) {
-  if (!currentUser) return openAuth('login');
-  try {
-    const res = await apiPost(`/files/like/${id}`, {}, true);
-    btn.textContent = res.liked ? '❤ Liked' : '❤ Like';
-    showToast(res.liked ? '❤ Liked!' : 'Unliked');
-  } catch (e) {
-    showToast('Login to like files', 'error');
-  }
-}
-
-// ── Delete a file ──
-async function deleteFile(id, cardEl) {
-  if (!confirm('Are you sure you want to delete this file?')) return;
-  try {
-    await apiDelete(`/files/${id}`);
-    cardEl.remove(); // Remove card from DOM
-    showToast('🗑 File deleted', 'success');
-  } catch (e) {
-    showToast(e.message, 'error');
-  }
-}
-
-
-// ════════════════════════════════════════════════════════════
-// HOME PAGE — Load and filter cards
-// ════════════════════════════════════════════════════════════
-let homeType = '', homeDept = '';
-
-async function loadHomeCards() {
-  document.getElementById('home-loading').style.display = 'block';
-  try {
-    const params = new URLSearchParams({ limit: 9 });
-    if (homeType)  params.set('type',       homeType);
-    if (homeDept)  params.set('department', homeDept);
-
-    const res = await apiGet(`/files?${params}`);
-    renderCards(res.files, 'home-cards');
-
-    // Also update stats
-    if (res.pagination) {
-      document.getElementById('stat-files').textContent = res.pagination.total + '+';
+      }).join('');
     }
-  } catch (e) {
-    document.getElementById('home-cards').innerHTML = '<div class="no-files">⚠️ Could not load files. Is the server running?</div>';
-  }
-  document.getElementById('home-loading').style.display = 'none';
-}
-
-function homeFilter(type, el, dept) {
-  homeType = type;
-  homeDept = dept || '';
-  document.querySelectorAll('.sidebar .sb-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-  loadHomeCards();
-  document.getElementById('home-title').textContent = dept ? `${dept} Resources` : (type ? type.toUpperCase() : 'All Resources');
-}
-
-function setHomeSort(field, el) {
-  homeSort = field;
-  document.querySelectorAll('#page-home .tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  loadHomeCards();
-}
-
-function doHomeSearch() {
-  showPage('browse');
-  document.getElementById('br-dept').value   = document.getElementById('h-dept').value;
-  document.getElementById('br-sem').value    = document.getElementById('h-sem').value;
-  document.getElementById('br-search').value = document.getElementById('h-search').value;
-  loadBrowseCards();
-}
 
 
-// ════════════════════════════════════════════════════════════
-// BROWSE PAGE — Full search with pagination
-// ════════════════════════════════════════════════════════════
-async function loadBrowseCards() {
-  document.getElementById('browse-loading').style.display = 'block';
-  document.getElementById('browse-cards').innerHTML = '';
+    // ════════════════════════════════════════════════════════════
+    // FILE ACTIONS — Download, Like, Delete
+    // ════════════════════════════════════════════════════════════
 
-  const params = new URLSearchParams({
-    page:  browsePage,
-    limit: 12,
-    sort:  browseSort
-  });
-
-  const type   = document.getElementById('br-type')?.value;
-  const dept   = document.getElementById('br-dept')?.value;
-  const year   = document.getElementById('br-year')?.value;
-  const sem    = document.getElementById('br-sem')?.value;
-  const search = document.getElementById('br-search')?.value;
-
-  if (type)   params.set('type',       type);
-  if (dept)   params.set('department', dept);
-  if (year)   params.set('year',       year);
-  if (sem)    params.set('semester',   sem);
-  if (search) params.set('search',     search);
-
-  try {
-    const res = await apiGet(`/files?${params}`);
-    renderCards(res.files, 'browse-cards');
-    document.getElementById('browse-count').textContent = `${res.pagination.total} files found`;
-    renderPagination(res.pagination);
-  } catch (e) {
-    document.getElementById('browse-loading').innerHTML = '⚠️ Server not connected';
-  }
-  document.getElementById('browse-loading').style.display = 'none';
-}
-
-function browseSearch() { browsePage = 1; loadBrowseCards(); }
-function setBrowseSort(field, el) {
-  browseSort = field;
-  document.querySelectorAll('#page-browse .tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  loadBrowseCards();
-}
-
-// ── Render pagination buttons ──
-function renderPagination({ page, pages }) {
-  const el  = document.getElementById('browse-pagination');
-  el.innerHTML = '';
-  for (let i = 1; i <= pages; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.className   = `btn ${i === page ? 'btn-primary' : 'btn-ghost'} btn-sm`;
-    btn.onclick     = () => { browsePage = i; loadBrowseCards(); };
-    el.appendChild(btn);
-  }
-}
-
-
-// ════════════════════════════════════════════════════════════
-// UPLOAD MODAL
-// ════════════════════════════════════════════════════════════
-function openUpload() {
-  if (!currentUser) return openAuth('login');
-  document.getElementById('upload-overlay').classList.add('open');
-}
-
-function closeUpload() {
-  document.getElementById('upload-overlay').classList.remove('open');
-  selectedFile = null;
-  document.getElementById('drop-title').textContent = 'Drop file here or click to browse';
-}
-
-// Called when user drags & drops a file
-function handleDrop(e) {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file) setSelectedFile(file);
-}
-
-// Called when user picks a file via the file input
-function handleFileSelect(input) {
-  if (input.files[0]) setSelectedFile(input.files[0]);
-}
-
-function setSelectedFile(file) {
-  selectedFile = file;
-  document.getElementById('drop-title').textContent = `✅ ${file.name} (${(file.size/1024/1024).toFixed(1)} MB)`;
-}
-
-// ── Submit the upload form ──
-async function submitUpload() {
-  if (!selectedFile) return showToast('Please select a file first', 'error');
-
-  const title   = document.getElementById('u-title').value.trim();
-  const subject = document.getElementById('u-subject').value.trim();
-  if (!title || !subject) return showToast('Title and subject are required', 'error');
-
-  // Use FormData because we're sending a file (multipart/form-data)
-  const formData = new FormData();
-  formData.append('file',        selectedFile);
-  formData.append('title',       title);
-  formData.append('description', document.getElementById('u-desc').value);
-  formData.append('type',        document.getElementById('u-type').value);
-  formData.append('department',  document.getElementById('u-dept').value);
-  formData.append('subject',     subject);
-  formData.append('year',        document.getElementById('u-year').value);
-  formData.append('semester',    document.getElementById('u-sem').value);
-
-  setBtnLoading('upload-submit-btn', true);
-  try {
-    // For file upload we use fetch directly (not apiPost) because FormData handles content-type
-    const res = await fetch(`${API}/files/upload`, {
-      method:  'POST',
-      headers: { Authorization: `Bearer ${authToken}` },
-      body:    formData
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
-
-    closeUpload();
-    showToast('🎉 File uploaded successfully!', 'success');
-    loadHomeCards(); // Refresh cards
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-  setBtnLoading('upload-submit-btn', false, '⬆ Upload');
-}
-
-
-// ════════════════════════════════════════════════════════════
-// PROFILE PAGE
-// ════════════════════════════════════════════════════════════
-async function loadProfilePage() {
-  if (!currentUser) return;
-
-  // Fill in profile info
-  document.getElementById('profile-name').textContent = currentUser.name;
-  document.getElementById('profile-role').textContent = `${currentUser.role} · ${currentUser.department}`;
-  document.getElementById('p-points').textContent     = currentUser.points;
-  document.getElementById('edit-name').value          = currentUser.name;
-
-  // Load user's uploads
-  try {
-    const res = await apiGet(`/files?uploadedBy=${currentUser._id}&limit=20`);
-    document.getElementById('p-uploads').textContent = res.pagination.total;
-    if (res.files.length === 0) {
-      document.getElementById('my-uploads-empty').classList.remove('hidden');
-    } else {
-      renderCards(res.files, 'my-uploads');
+    // ── Download: opens the download API endpoint in new tab ──
+    function downloadFile(id, name) {
+      window.open(`${API}/files/download/${id}`, '_blank');
+      showToast(`⬇ Downloading ${name}...`);
     }
-  } catch (e) {}
-}
 
-async function saveProfile() {
-  try {
-    const res = await apiPut('/auth/update-profile', {
-      name:       document.getElementById('edit-name').value,
-      department: document.getElementById('edit-dept').value,
-      year:       document.getElementById('edit-year').value,
-      semester:   document.getElementById('edit-sem').value
-    });
-    currentUser = res.user;
-    showToast('✅ Profile updated!', 'success');
-  } catch (e) {
-    showToast(e.message, 'error');
-  }
-}
+    // ── Preview: open file in new tab using the static files server ──
+    async function previewFile(id) {
+      try {
+        const res = await apiGet(`/files/${id}`);
+        const path = `http://localhost:5000/${res.file.filePath}`;
+        window.open(path, '_blank');
+      } catch (e) {
+        showToast('Could not open file preview', 'error');
+      }
+    }
+
+    // ── Like/Unlike a file ──
+    async function likeFile(id, btn) {
+      if (!currentUser) return openAuth('login');
+      try {
+        const res = await apiPost(`/files/like/${id}`, {}, true);
+        btn.textContent = res.liked ? '❤ Liked' : '❤ Like';
+        showToast(res.liked ? '❤ Liked!' : 'Unliked');
+      } catch (e) {
+        showToast('Login to like files', 'error');
+      }
+    }
+
+    // ── Delete a file ──
+    async function deleteFile(id, cardEl) {
+      if (!confirm('Are you sure you want to delete this file?')) return;
+      try {
+        await apiDelete(`/files/${id}`);
+        cardEl.remove(); // Remove card from DOM
+        showToast('🗑 File deleted', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
 
 
-// ════════════════════════════════════════════════════════════
-// ADMIN PAGE
-// ════════════════════════════════════════════════════════════
-async function loadAdminStats() {
-  if (!currentUser || currentUser.role !== 'admin') return;
-  try {
-    const res = await apiGet('/admin/stats');
-    document.getElementById('a-users').textContent   = res.stats.totalUsers;
-    document.getElementById('a-files').textContent   = res.stats.totalFiles;
-    document.getElementById('a-msgs').textContent    = res.stats.totalMessages;
-    document.getElementById('a-pending').textContent = res.stats.pendingFiles;
-    document.getElementById('a-banned').textContent  = res.stats.bannedUsers;
-    document.getElementById('stat-users').textContent = res.stats.totalUsers;
-    document.getElementById('stat-msgs').textContent  = res.stats.totalMessages;
-  } catch (e) {}
-}
+    // ════════════════════════════════════════════════════════════
+    // HOME PAGE — Load and filter cards
+    // ════════════════════════════════════════════════════════════
+    let homeType = '', homeDept = '';
 
-async function loadAdminUsers() {
-  try {
-    const res = await apiGet('/admin/users?limit=50');
-    const tbody = document.getElementById('admin-users-body');
-    tbody.innerHTML = res.users.map(u => `
+    async function loadHomeCards() {
+      document.getElementById('home-loading').style.display = 'block';
+      try {
+        const params = new URLSearchParams({ limit: 9 });
+        if (homeType) params.set('type', homeType);
+        if (homeDept) params.set('department', homeDept);
+
+        const res = await apiGet(`/files?${params}`);
+        renderCards(res.files, 'home-cards');
+
+        // Also update stats
+        if (res.pagination) {
+          document.getElementById('stat-files').textContent = res.pagination.total + '+';
+        }
+      } catch (e) {
+        document.getElementById('home-cards').innerHTML = '<div class="no-files">⚠️ Could not load files. Is the server running?</div>';
+      }
+      document.getElementById('home-loading').style.display = 'none';
+    }
+
+    function homeFilter(type, el, dept) {
+      homeType = type;
+      homeDept = dept || '';
+      document.querySelectorAll('.sidebar .sb-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      loadHomeCards();
+      document.getElementById('home-title').textContent = dept ? `${dept} Resources` : (type ? type.toUpperCase() : 'All Resources');
+    }
+
+    function setHomeSort(field, el) {
+      homeSort = field;
+      document.querySelectorAll('#page-home .tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      loadHomeCards();
+    }
+
+    function doHomeSearch() {
+      showPage('browse');
+      document.getElementById('br-dept').value = document.getElementById('h-dept').value;
+      document.getElementById('br-sem').value = document.getElementById('h-sem').value;
+      document.getElementById('br-search').value = document.getElementById('h-search').value;
+      loadBrowseCards();
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // BROWSE PAGE — Full search with pagination
+    // ════════════════════════════════════════════════════════════
+    async function loadBrowseCards() {
+      document.getElementById('browse-loading').style.display = 'block';
+      document.getElementById('browse-cards').innerHTML = '';
+
+      const params = new URLSearchParams({
+        page: browsePage,
+        limit: 12,
+        sort: browseSort
+      });
+
+      const type = document.getElementById('br-type')?.value;
+      const dept = document.getElementById('br-dept')?.value;
+      const year = document.getElementById('br-year')?.value;
+      const sem = document.getElementById('br-sem')?.value;
+      const search = document.getElementById('br-search')?.value;
+
+      if (type) params.set('type', type);
+      if (dept) params.set('department', dept);
+      if (year) params.set('year', year);
+      if (sem) params.set('semester', sem);
+      if (search) params.set('search', search);
+
+      try {
+        const res = await apiGet(`/files?${params}`);
+        renderCards(res.files, 'browse-cards');
+        document.getElementById('browse-count').textContent = `${res.pagination.total} files found`;
+        renderPagination(res.pagination);
+      } catch (e) {
+        document.getElementById('browse-loading').innerHTML = '⚠️ Server not connected';
+      }
+      document.getElementById('browse-loading').style.display = 'none';
+    }
+
+    function browseSearch() { browsePage = 1; loadBrowseCards(); }
+    function setBrowseSort(field, el) {
+      browseSort = field;
+      document.querySelectorAll('#page-browse .tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      loadBrowseCards();
+    }
+
+    // ── Render pagination buttons ──
+    function renderPagination({ page, pages }) {
+      const el = document.getElementById('browse-pagination');
+      el.innerHTML = '';
+      for (let i = 1; i <= pages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = `btn ${i === page ? 'btn-primary' : 'btn-ghost'} btn-sm`;
+        btn.onclick = () => { browsePage = i; loadBrowseCards(); };
+        el.appendChild(btn);
+      }
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // UPLOAD MODAL
+    // ════════════════════════════════════════════════════════════
+    function openUpload() {
+      if (!currentUser) return openAuth('login');
+      document.getElementById('upload-overlay').classList.add('open');
+    }
+
+    function closeUpload() {
+      document.getElementById('upload-overlay').classList.remove('open');
+      selectedFile = null;
+      document.getElementById('drop-title').textContent = 'Drop file here or click to browse';
+    }
+
+    // Called when user drags & drops a file
+    function handleDrop(e) {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) setSelectedFile(file);
+    }
+
+    // Called when user picks a file via the file input
+    function handleFileSelect(input) {
+      if (input.files[0]) setSelectedFile(input.files[0]);
+    }
+
+    function setSelectedFile(file) {
+      selectedFile = file;
+      document.getElementById('drop-title').textContent = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+    }
+
+    // ── Submit the upload form ──
+    async function submitUpload() {
+      if (!selectedFile) return showToast('Please select a file first', 'error');
+
+      const title = document.getElementById('u-title').value.trim();
+      const subject = document.getElementById('u-subject').value.trim();
+      if (!title || !subject) return showToast('Title and subject are required', 'error');
+
+      // Use FormData because we're sending a file (multipart/form-data)
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('title', title);
+      formData.append('description', document.getElementById('u-desc').value);
+      formData.append('type', document.getElementById('u-type').value);
+      formData.append('department', document.getElementById('u-dept').value);
+      formData.append('subject', subject);
+      formData.append('year', document.getElementById('u-year').value);
+      formData.append('semester', document.getElementById('u-sem').value);
+
+      setBtnLoading('upload-submit-btn', true);
+      try {
+        // For file upload we use fetch directly (not apiPost) because FormData handles content-type
+        const res = await fetch(`${API}/files/upload`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${authToken}` },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+
+        closeUpload();
+        showToast('🎉 File uploaded successfully!', 'success');
+        loadHomeCards(); // Refresh cards
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      setBtnLoading('upload-submit-btn', false, '⬆ Upload');
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // STUDENT PANEL
+    // ════════════════════════════════════════════════════════════
+    async function loadProfilePage() {
+      if (!currentUser) return;
+
+      // Fill in profile info
+      document.getElementById('profile-name').textContent = currentUser.name;
+      document.getElementById('profile-role').textContent = `${currentUser.role} · ${currentUser.department}`;
+      document.getElementById('p-points').textContent = currentUser.points;
+      document.getElementById('edit-name').value = currentUser.name;
+
+      loadUserUploads('student-uploads', 'student-uploads-empty', 'p-uploads');
+    }
+
+    // ── Shared function to load uploads for both Student and Faculty ──
+    async function loadUserUploads(containerId, emptyId, countId) {
+      try {
+        const res = await apiGet(`/files?uploadedBy=${currentUser._id}&limit=20`);
+        if (countId) document.getElementById(countId).textContent = res.pagination.total;
+        if (res.files.length === 0) {
+          document.getElementById(emptyId).classList.remove('hidden');
+          document.getElementById(containerId).innerHTML = '';
+        } else {
+          document.getElementById(emptyId).classList.add('hidden');
+          renderCards(res.files, containerId);
+        }
+      } catch (e) { }
+    }
+
+    async function saveProfile() {
+      try {
+        const res = await apiPut('/auth/update-profile', {
+          name: document.getElementById('edit-name').value,
+          department: document.getElementById('edit-dept').value,
+          year: document.getElementById('edit-year').value,
+          semester: document.getElementById('edit-sem').value
+        });
+        currentUser = res.user;
+        showToast('✅ Profile updated!', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // ADMIN PAGE
+    // ════════════════════════════════════════════════════════════
+    async function loadAdminStats() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      try {
+        const res = await apiGet('/admin/stats');
+        document.getElementById('a-users').textContent = res.stats.totalUsers;
+        document.getElementById('a-files').textContent = res.stats.totalFiles;
+        document.getElementById('a-msgs').textContent = res.stats.totalMessages;
+        document.getElementById('a-pending').textContent = res.stats.pendingFiles;
+        document.getElementById('a-banned').textContent = res.stats.bannedUsers;
+        document.getElementById('stat-users').textContent = res.stats.totalUsers;
+        document.getElementById('stat-msgs').textContent = res.stats.totalMessages;
+      } catch (e) { }
+    }
+
+    async function loadAdminUsers() {
+      try {
+        const res = await apiGet('/admin/users?limit=50');
+        const tbody = document.getElementById('admin-users-body');
+        tbody.innerHTML = res.users.map(u => `
       <tr>
         <td>${u.name}</td>
         <td style="color:var(--text2)">${u.email}</td>
-        <td><span class="role-badge rb-${u.role}">${u.role}</span></td>
+        <td>
+          <select class="f-input" style="padding:.2rem .5rem; font-size:.8rem; border-radius:5px" onchange="adminChangeRole('${u._id}', this.value)">
+            <option value="student" ${u.role === 'student' ? 'selected' : ''}>Student</option>
+            <option value="faculty" ${u.role === 'faculty' ? 'selected' : ''}>Faculty</option>
+            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+          </select>
+        </td>
         <td>${u.department || '—'}</td>
         <td style="color:var(--accent)">${u.points}</td>
         <td style="display:flex;gap:.3rem">
@@ -1374,14 +2611,24 @@ async function loadAdminUsers() {
             : `<button class="btn btn-danger btn-sm"  onclick="adminBan('${u._id}',this)">Ban</button>`}
         </td>
       </tr>`).join('');
-  } catch (e) {}
-}
+      } catch (e) { }
+    }
 
-async function loadAdminFiles() {
-  try {
-    const res = await apiGet('/admin/files?limit=50');
-    const tbody = document.getElementById('admin-files-body');
-    tbody.innerHTML = res.files.map(f => `
+    async function adminChangeRole(id, newRole) {
+      if (!confirm(`Change user role to ${newRole}?`)) return;
+      try {
+        await apiPut(`/admin/users/${id}`, { role: newRole });
+        showToast('User role updated!');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadAdminFiles() {
+      try {
+        const res = await apiGet('/admin/files?limit=50');
+        const tbody = document.getElementById('admin-files-body');
+        tbody.innerHTML = res.files.map(f => `
       <tr>
         <td>${f.title}</td>
         <td><span class="type-badge tb-${f.type}">${f.type}</span></td>
@@ -1393,297 +2640,402 @@ async function loadAdminFiles() {
           <button class="btn btn-danger btn-sm" onclick="adminDeleteFile('${f._id}',this.closest('tr'))">Delete</button>
         </td>
       </tr>`).join('');
-  } catch (e) {}
-}
-
-function adminTab(tab, el) {
-  document.querySelectorAll('#page-admin .tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('admin-users-section').style.display = tab === 'users' ? 'block' : 'none';
-  document.getElementById('admin-files-section').style.display = tab === 'files' ? 'block' : 'none';
-  if (tab === 'files') loadAdminFiles();
-}
-
-async function adminBan(id, btn) {
-  await apiPut(`/admin/users/${id}`, { isBanned: true });
-  btn.outerHTML = `<button class="btn btn-success btn-sm" onclick="adminUnban('${id}',this)">Unban</button>`;
-  showToast('User banned');
-}
-
-async function adminUnban(id, btn) {
-  await apiPut(`/admin/users/${id}`, { isBanned: false });
-  btn.outerHTML = `<button class="btn btn-danger btn-sm" onclick="adminBan('${id}',this)">Ban</button>`;
-  showToast('User unbanned');
-}
-
-async function adminApprove(id, val, btn) {
-  await apiPut(`/admin/files/${id}`, { isApproved: val });
-  btn.closest('tr').querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--accent3)">✅ Approved</span>';
-  showToast('File approved ✅');
-}
-
-async function adminDeleteFile(id, row) {
-  if (!confirm('Delete this file permanently?')) return;
-  await apiDelete(`/admin/files/${id}`);
-  row.remove();
-  showToast('File deleted');
-}
-
-
-// ════════════════════════════════════════════════════════════
-// SOCKET.IO — REAL-TIME CHAT
-// ════════════════════════════════════════════════════════════
-
-// ── Initialize socket connection to our server ──
-function initSocket() {
-  socket = io('http://localhost:5000');
-
-  // When connected, authenticate if user is logged in
-  socket.on('connect', () => {
-    console.log('✅ Socket connected');
-    if (authToken) socket.emit('authenticate', authToken);
-  });
-
-  // Handle incoming messages — add them to the chat window
-  socket.on('message', (msg) => {
-    appendMessage(msg);
-  });
-
-  // Update online count display
-  socket.on('onlineCount', ({ room, count }) => {
-    if (room === currentRoom) {
-      document.getElementById('room-online').textContent = `● ${count} online`;
+      } catch (e) { }
     }
-  });
 
-  // User joined notification
-  socket.on('userJoined', ({ name }) => {
-    appendSystemMessage(`${name} joined the room`);
-  });
+    // ── Load dynamic departments ──
+    async function loadDepartments() {
+      try {
+        const res = await apiGet('/departments');
+        const depts = res.departments || [];
 
-  // Typing indicator — show/hide based on other users typing
-  socket.on('typingStatus', ({ name, isTyping }) => {
-    const el = document.getElementById('typing-indicator');
-    el.textContent = `${name} is typing...`;
-    el.classList.toggle('hidden', !isTyping);
-  });
+        // Build option string
+        const opts = depts.map(d => `<option value="${d.code}">${d.code} - ${d.name}</option>`).join('');
 
-  socket.on('disconnect', () => console.log('Socket disconnected'));
-  socket.on('error', (err) => showToast(err.message, 'error'));
-}
+        // Inject into dropdowns
+        document.getElementById('h-dept').innerHTML = '<option value="">All Departments</option>' + opts;
+        document.getElementById('br-dept').innerHTML = '<option value="">All Depts</option>' + opts;
+        document.getElementById('u-dept').innerHTML = '<option value="">Select Department</option>' + opts;
+        document.getElementById('r-dept').innerHTML = '<option value="">Select Department</option>' + opts;
+        document.getElementById('edit-dept').innerHTML = '<option value="">Select Department</option>' + opts;
 
-// ── Load rooms from API and render them ──
-async function loadChatRooms() {
-  try {
-    const res = await apiGet('/chat/rooms');
-    const el  = document.getElementById('room-list');
-    el.innerHTML = res.rooms.map(r => `
+      } catch (e) { console.error('Failed to load departments'); }
+    }
+
+    // ── Load Admin Activity Log ──
+    async function loadAdminActivity() {
+      try {
+        const res = await apiGet('/admin/activity');
+        const container = document.getElementById('admin-activity-list');
+        if (res.activities.length === 0) return container.innerHTML = '<div style="text-align:center;padding:2rem">No recent activity</div>';
+
+        container.innerHTML = res.activities.map(a => `
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1rem; display:flex; gap:1rem; align-items:flex-start">
+            <div style="font-size:1.5rem">${a.action === 'upload' ? '📤' : a.action === 'register' ? '👋' : '🗑️'}</div>
+            <div>
+              <div style="font-weight:600; font-size:.85rem">${a.description}</div>
+              <div style="font-size:.7rem; color:var(--text3); margin-top:.3rem">${a.user?.name || 'Unknown User'} · ${new Date(a.createdAt).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) { }
+    }
+
+    // ── Admin Manage Departments ──
+    async function loadAdminDepartments() {
+      try {
+        const res = await apiGet('/departments');
+        const tbody = document.getElementById('admin-dept-body');
+        tbody.innerHTML = res.departments.map(d => `
+          <tr>
+            <td style="font-weight:700">${d.code}</td>
+            <td>${d.name}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="deleteDepartment('${d._id}', this.closest('tr'))">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) { }
+    }
+
+    async function addDepartment() {
+      const name = document.getElementById('new-dept-name').value;
+      const code = document.getElementById('new-dept-code').value;
+      if (!name || !code) return showToast('Please enter name and code', 'error');
+      try {
+        await apiPost('/admin/departments', { name, code });
+        showToast('Department added successfully!');
+        document.getElementById('new-dept-name').value = '';
+        document.getElementById('new-dept-code').value = '';
+        loadAdminDepartments();
+        loadDepartments();
+      } catch (e) { showToast(e.message, 'error'); }
+    }
+
+    async function deleteDepartment(id, row) {
+      if (!confirm('Delete this department forever?')) return;
+      try {
+        await apiDelete(`/admin/departments/${id}`);
+        row.remove();
+        showToast('Department deleted!');
+        loadDepartments();
+      } catch (e) { showToast(e.message, 'error'); }
+    }
+
+    function adminTab(tab, el) {
+      document.querySelectorAll('#page-admin .sb-item').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      ['overview', 'users', 'files', 'departments', 'activity'].forEach(sect => {
+        const sectionEl = document.getElementById(`admin-${sect}-section`);
+        if (sect === tab) {
+          sectionEl.classList.remove('hidden');
+          sectionEl.style.display = 'block';
+        } else {
+          sectionEl.classList.add('hidden');
+          sectionEl.style.display = 'none';
+        }
+      });
+
+      if (tab === 'files') loadAdminFiles();
+      if (tab === 'departments') loadAdminDepartments();
+      if (tab === 'activity') loadAdminActivity();
+    }
+
+    async function adminBan(id, btn) {
+      await apiPut(`/admin/users/${id}`, { isBanned: true });
+      btn.outerHTML = `<button class="btn btn-success btn-sm" onclick="adminUnban('${id}',this)">Unban</button>`;
+      showToast('User banned');
+    }
+
+    async function adminUnban(id, btn) {
+      await apiPut(`/admin/users/${id}`, { isBanned: false });
+      btn.outerHTML = `<button class="btn btn-danger btn-sm" onclick="adminBan('${id}',this)">Ban</button>`;
+      showToast('User unbanned');
+    }
+
+    async function adminApprove(id, val, btn) {
+      await apiPut(`/admin/files/${id}`, { isApproved: val });
+      btn.closest('tr').querySelector('td:nth-child(5)').innerHTML = '<span style="color:var(--accent3)">✅ Approved</span>';
+      showToast('File approved ✅');
+    }
+
+    async function adminDeleteFile(id, row) {
+      if (!confirm('Delete this file permanently?')) return;
+      await apiDelete(`/admin/files/${id}`);
+      row.remove();
+      showToast('File deleted');
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // SOCKET.IO — REAL-TIME CHAT
+    // ════════════════════════════════════════════════════════════
+
+    // ── Initialize socket connection to our server ──
+    function initSocket() {
+      socket = io('http://localhost:5000');
+
+      // When connected, authenticate if user is logged in
+      socket.on('connect', () => {
+        console.log('✅ Socket connected');
+        if (authToken) socket.emit('authenticate', authToken);
+      });
+
+      // Handle incoming messages — add them to the chat window
+      socket.on('message', (msg) => {
+        appendMessage(msg);
+      });
+
+      // Update online count display
+      socket.on('onlineCount', ({ room, count }) => {
+        if (room === currentRoom) {
+          document.getElementById('room-online').textContent = `● ${count} online`;
+        }
+      });
+
+      // User joined notification
+      socket.on('userJoined', ({ name }) => {
+        appendSystemMessage(`${name} joined the room`);
+      });
+
+      // Typing indicator — show/hide based on other users typing
+      socket.on('typingStatus', ({ name, isTyping }) => {
+        const el = document.getElementById('typing-indicator');
+        el.textContent = `${name} is typing...`;
+        el.classList.toggle('hidden', !isTyping);
+      });
+
+      socket.on('disconnect', () => console.log('Socket disconnected'));
+      socket.on('error', (err) => showToast(err.message, 'error'));
+    }
+
+    // ── Load rooms from API and render them ──
+    async function loadChatRooms() {
+      try {
+        const res = await apiGet('/chat/rooms');
+        const el = document.getElementById('room-list');
+        el.innerHTML = res.rooms.map(r => `
       <div class="sb-item" onclick="joinRoom('${r.id}','${r.name}','${r.icon}',this)"
            style="margin:0">
         <span>${r.icon}</span> ${r.name}
       </div>`).join('');
-  } catch (e) {}
-}
+      } catch (e) { }
+    }
 
-// ── Join a chat room ──
-async function joinRoom(roomId, roomName, icon, el) {
-  // Must be logged in to chat
-  if (!currentUser) return openAuth('login');
+    // ── Join a chat room ──
+    async function joinRoom(roomId, roomName, icon, el) {
+      // Must be logged in to chat
+      if (!currentUser) return openAuth('login');
 
-  currentRoom = roomId;
+      currentRoom = roomId;
 
-  // Update active state in sidebar
-  document.querySelectorAll('#room-list .sb-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
+      // Update active state in sidebar
+      document.querySelectorAll('#room-list .sb-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
 
-  // Update header
-  document.getElementById('room-name').textContent = roomName;
-  document.getElementById('room-icon').textContent = icon;
+      // Update header
+      document.getElementById('room-name').textContent = roomName;
+      document.getElementById('room-icon').textContent = icon;
 
-  // Tell server to join this room
-  socket.emit('joinRoom', roomId);
+      // Tell server to join this room
+      socket.emit('joinRoom', roomId);
 
-  // Clear messages and load history
-  document.getElementById('chat-messages').innerHTML = '';
-  try {
-    const res = await apiGet(`/chat/history/${roomId}`);
-    res.messages.forEach(msg => appendMessage(msg, false)); // false = don't scroll each time
-    scrollChat(); // Scroll to bottom after loading all history
-  } catch (e) {}
-}
+      // Clear messages and load history
+      document.getElementById('chat-messages').innerHTML = '';
+      try {
+        const res = await apiGet(`/chat/history/${roomId}`);
+        res.messages.forEach(msg => appendMessage(msg, false)); // false = don't scroll each time
+        scrollChat(); // Scroll to bottom after loading all history
+      } catch (e) { }
+    }
 
-// ── Append a message to the chat window ──
-function appendMessage(msg, scroll = true) {
-  const container = document.getElementById('chat-messages');
-  const isOwn     = currentUser && msg.sender._id === currentUser._id;
-  const initials  = msg.sender.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  const time      = new Date(msg.createdAt).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-  const colors    = ['rgba(79,142,247,.15)', 'rgba(124,58,237,.15)', 'rgba(6,214,160,.15)', 'rgba(247,37,133,.15)'];
-  const color     = colors[msg.sender.name.length % colors.length];
+    // ── Append a message to the chat window ──
+    function appendMessage(msg, scroll = true) {
+      const container = document.getElementById('chat-messages');
+      const isOwn = currentUser && msg.sender._id === currentUser._id;
+      const initials = msg.sender.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const time = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const colors = ['rgba(79,142,247,.15)', 'rgba(124,58,237,.15)', 'rgba(6,214,160,.15)', 'rgba(247,37,133,.15)'];
+      const color = colors[msg.sender.name.length % colors.length];
 
-  const div = document.createElement('div');
-  div.className = `msg ${isOwn ? 'own' : ''}`;
-  div.innerHTML = `
+      const div = document.createElement('div');
+      div.className = `msg ${isOwn ? 'own' : ''}`;
+      div.innerHTML = `
     <div class="msg-av" style="background:${color}">${initials}</div>
     <div class="msg-body">
       <div class="msg-name">${msg.sender.name} · ${msg.sender.role}</div>
       <div class="msg-bubble">${escapeHtml(msg.text)}</div>
       <div class="msg-time">${time}</div>
     </div>`;
-  container.appendChild(div);
-  if (scroll) scrollChat();
-}
+      container.appendChild(div);
+      if (scroll) scrollChat();
+    }
 
-function appendSystemMessage(text) {
-  const container = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.style.cssText = 'text-align:center;color:var(--text3);font-size:.75rem;padding:.3rem;';
-  div.textContent   = text;
-  container.appendChild(div);
-  scrollChat();
-}
+    function appendSystemMessage(text) {
+      const container = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.style.cssText = 'text-align:center;color:var(--text3);font-size:.75rem;padding:.3rem;';
+      div.textContent = text;
+      container.appendChild(div);
+      scrollChat();
+    }
 
-// ── Scroll chat to bottom ──
-function scrollChat() {
-  const el = document.getElementById('chat-messages');
-  el.scrollTop = el.scrollHeight;
-}
+    // ── Scroll chat to bottom ──
+    function scrollChat() {
+      const el = document.getElementById('chat-messages');
+      el.scrollTop = el.scrollHeight;
+    }
 
-// ── Send a chat message ──
-function sendMessage() {
-  if (!currentUser) return openAuth('login');
-  if (!currentRoom) return showToast('Please join a room first', 'error');
+    // ── Send a chat message ──
+    function sendMessage() {
+      if (!currentUser) return openAuth('login');
+      if (!currentRoom) return showToast('Please join a room first', 'error');
 
-  const input = document.getElementById('chat-input');
-  const text  = input.value.trim();
-  if (!text) return;
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
 
-  // Emit message to server via socket
-  socket.emit('sendMessage', { room: currentRoom, text });
-  input.value = '';
+      // Emit message to server via socket
+      socket.emit('sendMessage', { room: currentRoom, text });
+      input.value = '';
 
-  // Stop typing indicator
-  socket.emit('typing', { room: currentRoom, isTyping: false });
-}
+      // Stop typing indicator
+      socket.emit('typing', { room: currentRoom, isTyping: false });
+    }
 
-// ── Handle Enter key in chat input ──
-function handleChatKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
+    // ── Admin: Clear entire chat room ──
+    async function clearCurrentChatRoom() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      if (!currentRoom) return;
+      if (!confirm('Are you sure you want to permanently delete all messages in this room?')) return;
+      try {
+        await apiDelete(`/admin/chat/clear/${currentRoom}`);
+        document.getElementById('chat-messages').innerHTML = '<div style="text-align:center;color:var(--text3);font-size:.85rem;padding:2rem">Room cleared by Admin</div>';
+        showToast('Room cleared successfully', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
 
-// ── Emit typing event (debounced so it doesn't fire on every keystroke) ──
-function emitTyping() {
-  if (!currentRoom || !socket) return;
-  socket.emit('typing', { room: currentRoom, isTyping: true });
+    // ── Handle Enter key in chat input ──
+    function handleChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
 
-  clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(() => {
-    socket.emit('typing', { room: currentRoom, isTyping: false });
-  }, 1500); // Stop "typing" indicator after 1.5 seconds of inactivity
-}
+    // ── Emit typing event (debounced so it doesn't fire on every keystroke) ──
+    function emitTyping() {
+      if (!currentRoom || !socket) return;
+      socket.emit('typing', { room: currentRoom, isTyping: true });
 
-
-// ════════════════════════════════════════════════════════════
-// API HELPER FUNCTIONS
-// Wrap fetch() to reduce repetition and handle errors uniformly
-// ════════════════════════════════════════════════════════════
-
-// ── GET request ──
-async function apiGet(endpoint) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-
-  const res  = await fetch(`${API}${endpoint}`, { headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Request failed');
-  return data;
-}
-
-// ── POST request ──
-async function apiPost(endpoint, body) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-
-  const res  = await fetch(`${API}${endpoint}`, {
-    method:  'POST',
-    headers,
-    body:    JSON.stringify(body)
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Request failed');
-  return data;
-}
-
-// ── PUT request ──
-async function apiPut(endpoint, body) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-
-  const res  = await fetch(`${API}${endpoint}`, {
-    method:  'PUT',
-    headers,
-    body:    JSON.stringify(body)
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Request failed');
-  return data;
-}
-
-// ── DELETE request ──
-async function apiDelete(endpoint) {
-  const headers = { Authorization: `Bearer ${authToken}` };
-  const res  = await fetch(`${API}${endpoint}`, { method: 'DELETE', headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Delete failed');
-  return data;
-}
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        socket.emit('typing', { room: currentRoom, isTyping: false });
+      }, 1500); // Stop "typing" indicator after 1.5 seconds of inactivity
+    }
 
 
-// ════════════════════════════════════════════════════════════
-// UTILITY FUNCTIONS
-// ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    // API HELPER FUNCTIONS
+    // Wrap fetch() to reduce repetition and handle errors uniformly
+    // ════════════════════════════════════════════════════════════
 
-// ── Show a toast notification ──
-function showToast(message, type = '') {
-  const el = document.getElementById('toast');
-  el.textContent = message;
-  el.className   = `toast show ${type}`;
-  setTimeout(() => el.classList.remove('show'), 3500);
-}
+    // ── GET request ──
+    async function apiGet(endpoint) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
 
-// ── Show loading spinner inside a button ──
-function setBtnLoading(id, loading, label) {
-  const btn = document.getElementById(id);
-  if (!btn) return;
-  if (loading) {
-    btn.disabled     = true;
-    btn.innerHTML    = '<span class="spinner"></span> Loading...';
-  } else {
-    btn.disabled     = false;
-    btn.textContent  = label;
-  }
-}
+      const res = await fetch(`${API}${endpoint}`, { headers });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    }
 
-// ── Prevent XSS by escaping HTML special characters ──
-// ALWAYS use this when displaying user-generated text
-function escapeHtml(text) {
-  return text
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
+    // ── POST request ──
+    async function apiPost(endpoint, body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
 
-// ── Close modals when clicking outside ──
-document.getElementById('upload-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeUpload();
-});
-document.getElementById('auth-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeAuth();
-});
-</script>
+      const res = await fetch(`${API}${endpoint}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    }
+
+    // ── PUT request ──
+    async function apiPut(endpoint, body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+      const res = await fetch(`${API}${endpoint}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    }
+
+    // ── DELETE request ──
+    async function apiDelete(endpoint) {
+      const headers = { Authorization: `Bearer ${authToken}` };
+      const res = await fetch(`${API}${endpoint}`, { method: 'DELETE', headers });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Delete failed');
+      return data;
+    }
+
+
+    // ════════════════════════════════════════════════════════════
+    // UTILITY FUNCTIONS
+    // ════════════════════════════════════════════════════════════
+
+    // ── Show a toast notification ──
+    function showToast(message, type = '') {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.className = `toast show ${type}`;
+      setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    // ── Show loading spinner inside a button ──
+    function setBtnLoading(id, loading, label) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Loading...';
+      } else {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    }
+
+    // ── Prevent XSS by escaping HTML special characters ──
+    // ALWAYS use this when displaying user-generated text
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ── Close modals when clicking outside ──
+    document.getElementById('upload-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeUpload();
+    });
+    document.getElementById('auth-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeAuth();
+    });
+  </script>
 </body>
+
 </html>
