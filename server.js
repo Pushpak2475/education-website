@@ -96,6 +96,11 @@ app.get('/api/health', (req, res) => {
 // ── Catch-all: Send the frontend index.html for any unmatched route ──
 // This makes client-side navigation work (e.g., refreshing /notes still loads the app)
 app.get('*', (req, res) => {
+  // ❌ Skip API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: 'API route not found' });
+  }
+
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
