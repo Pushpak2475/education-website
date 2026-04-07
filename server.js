@@ -15,8 +15,8 @@ require('dotenv').config();
 
 // ── Core modules ──
 const express = require('express');        // Web framework
-const http = require('http');           // Node's built-in HTTP module
-const { Server } = require('socket.io');      // Real-time websocket library
+//const http = require('http');           // Node's built-in HTTP module
+//const { Server } = require('socket.io');      // Real-time websocket library
 const mongoose = require('mongoose');       // MongoDB ODM (Object Document Mapper)
 const cors = require('cors');           // Allows frontend to call our API
 const path = require('path');           // Helps build file paths
@@ -24,11 +24,11 @@ const path = require('path');           // Helps build file paths
 // ── Create Express app and HTTP server ──
 // We wrap Express inside http.Server so Socket.IO can share the same port
 const app = express();
-const server = http.createServer(app);
+//const server = http.createServer(app);
 
 // ── Attach Socket.IO to the HTTP server ──
 // cors: '*' means any origin can connect (fine for development)
-const io = new Server(server, {
+//const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
@@ -62,7 +62,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch(err => {
     console.error('❌ MongoDB connection failed:', err.message);
-    process.exit(1); // Stop server if DB fails — nothing works without it
+ //   process.exit(1); // Stop server if DB fails — nothing works without it
   });
 
 // ════════════════════════════════════
@@ -109,14 +109,14 @@ app.get('*', (req, res) => {
 // Socket.IO lets users send/receive messages instantly
 // without refreshing the page (uses WebSockets)
 // ════════════════════════════════════
-require('./socket/chatSocket')(io);
+//require('./socket/chatSocket')(io);
 
 // ════════════════════════════════════
 // START THE SERVER
 // Listen on the port defined in .env (default 5000)
 // ════════════════════════════════════
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`🚀 EduVault server running at http://localhost:${PORT}`);
   console.log(`📂 Uploads folder: ${process.env.UPLOAD_PATH}`);
 });
